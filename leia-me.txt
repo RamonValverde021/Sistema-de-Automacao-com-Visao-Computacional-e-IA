@@ -1,0 +1,13 @@
+versão do Python
+Python 3.10.10 - Feb. 8, 2023
+
+Versão do TensorFlow
+Para o Notebook usual:      pip install tensorflow==2.15.0
+Para o Notebook da escola:  pip install tensorflow-cpu==2.10.0
+Desinstalar:                pip uninstall tensorflow keras
+
+Open-CV
+pip install opencv-python
+
+Numpy
+pip install numpy
