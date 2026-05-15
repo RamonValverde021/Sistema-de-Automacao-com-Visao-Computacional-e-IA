@@ -1,0 +1,123 @@
+//==================== Inclusão de Bibliotecas =================//
+#include <SoftwareSerial.h>
+#include <ArduinoJson.h>  // Versão 7.1.0
+#include <EEPROM.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+//==================== PINOUT ====================//
+// Pinagem Digital
+#define pin_Sensor_Limite_Esteira 14  // Limite aonde a garrafinha chega antes de cair da esteira
+#define pin_Motor_Separadora_H 13
+#define pin_Motor_Separadora_AH 12
+#define pin_Motor_Separadora_PWM 11
+#define pin_Motor_Esteira_PWM 10
+#define pin_Motor_Esteira_H 9
+#define pin_Motor_Esteira_AH 8
+#define pin_Servo_Cancela 7
+#define pin_Sensor_Cancela 6
+#define pin_Transmissor_Lazer 5              // Diodo Lazer
+#define pin_Receptor_Lazer_D 4               // LDR, leitura digital
+#define pin_Chave_Fim_de_Curso_Separadora 3  // Chave fim de curso da esteira separadora
+#define pin_Encolder_Motor_Separadora 2      // A0
+
+// Pinagem Analogica
+#define pin_Receptor_Lazer_A A1  // LDR, leitura analogica
+
+// Variaveis Display 20x04 --------------------
+// Configure o endereço do LCD para 0x27 para um Display de 16 caracteres e 2 linhas.
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+//==================== VARIÁVEIS GLOBAIS ====================//
+const byte potenciaEstSep = 125;  // 175 = Potencia maxima com precisão
+const byte potenciaEstPrinc = 50;
+
+const byte posicaoCocaCola = 5;
+const byte posicaoSprite = 10;
+const byte posicaoFantaLaranja = 15;
+const byte posicaoFantaUva = 20;
+
+
+//==================== Flag ====================//
+
+
+//==================== PROTOTIPAÇÃO DE FUNÇÕES ====================//
+void _posicaoInicialEsteiraSeparadora();
+void _posicaoEsteiraSeparadora(int coordenada);
+
+
+//==================== CODIGO PRINCIPAL ====================//
+void setup() {
+  Serial.begin(38400);
+  // Definindo portas
+  pinMode(pin_Sensor_Limite_Esteira, INPUT);
+  pinMode(pin_Motor_Separadora_H, OUTPUT);
+  pinMode(pin_Motor_Separadora_AH, OUTPUT);
+  pinMode(pin_Motor_Separadora_PWM, OUTPUT);
+  pinMode(pin_Motor_Esteira_PWM, OUTPUT);
+  pinMode(pin_Motor_Esteira_H, OUTPUT);
+  pinMode(pin_Motor_Esteira_AH, OUTPUT);
+  pinMode(pin_Servo_Cancela, OUTPUT);
+  pinMode(pin_Sensor_Cancela, INPUT);
+  pinMode(pin_Transmissor_Lazer, OUTPUT);
+  pinMode(pin_Receptor_Lazer_D, INPUT);
+  pinMode(pin_Chave_Fim_de_Curso_Separadora, INPUT);
+  pinMode(pin_Encolder_Motor_Separadora, INPUT);
+  // Desligando portas
+  digitalWrite(pin_Motor_Separadora_H, LOW);
+  digitalWrite(pin_Motor_Separadora_AH, LOW);
+  analogWrite(pin_Motor_Separadora_PWM, 0);
+  analogWrite(pin_Motor_Esteira_PWM, 0);
+  digitalWrite(pin_Motor_Esteira_H, LOW);
+  digitalWrite(pin_Motor_Esteira_AH, LOW);
+  digitalWrite(pin_Servo_Cancela, LOW);
+  digitalWrite(pin_Transmissor_Lazer, LOW);
+
+  // Inicializando Sistema
+  /*
+  Serial.println("     INICIANDO ROBO     ");
+  Serial.println("      ARM MARK III      ");
+  lcd.setCursor(1, 0);  // Coluna 1 Linha 0
+  lcd.print("INICIANDO ROBO");
+  lcd.setCursor(2, 1);  // Coluna 3 Linha 1
+  lcd.print("ARM MARK III");
+  delay(500);  // 5000
+  Serial.println("-----------------------------> Robo Inicializado com Sucesso <-----------------------------");
+  lcd.clear();
+*/
+
+  // Inicializa funções
+
+  // Teste esteira
+  _posicaoInicialEsteiraSeparadora();
+  delay(500);
+  _posicaoEsteiraSeparadora(posicaoCocaCola);
+  delay(500);
+  _posicaoEsteiraSeparadora(posicaoFantaUva);
+  delay(500);
+  _posicaoEsteiraSeparadora(posicaoFantaLaranja);
+  delay(500);
+
+
+  // Inicia o display
+  /*
+  lcd.begin();      // initialize the LCD
+  lcd.backlight();  // Turn on the blacklight and print a message.
+  lcd.noDisplay();
+  delay(100);
+  lcd.clear();
+  lcd.display();
+  delay(100);
+  */
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+}
+
+/*
+lcd.setCursor(0, 0);  // Imprime o texto na Coluna 0 e Linha 0
+    lcd.print("0");
+    lcd.setCursor(1, 0);  // Imprime o texto na Coluna 1 e Linha 0
+    lcd.print(dt.day(), DEC);
+*/
