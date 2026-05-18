@@ -1,1 +1,1 @@
-# Esteira-Automacao-Arduino
+# Sistema-de-Automacao-com-Visao-Computacional-e-IA
