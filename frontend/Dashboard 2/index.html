@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="author" content="Ramon Valverde" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Automação Esteira Arduino</title>
+  <link rel="icon" type="image/png" href="images/Logo.png">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+  <script language="JavaScript" src="script.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" defer></script>
+</head>
+
+<body>
+
+  <div class="dash-root">
+    <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Dashboard de
+      monitoramento industrial — esteira automatizada de classificação de garrafas</h2>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-logo">
+        <div class="logo-dot"></div>
+        <div>
+          <div class="topbar-title"><i class="ti ti-cpu" aria-hidden="true"></i> IndústrIA 4.0 &nbsp;—&nbsp; Sistema
+            Supervisório</div>
+          <div class="topbar-sub">Esteira Automatizada · Visão Computacional · Arduino · Google Teachable Machine</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div>
+          <div class="clock" id="clock">--:--:--</div>
+          <div class="date-label" id="dateLbl">---</div>
+        </div>
+        <div class="status-pill status-running" id="statusPill">
+          <div class="status-dot"></div>
+          <span id="statusText">PROCESSANDO</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP COUNTERS -->
+    <div class="grid-main">
+      <div class="card card-coca">
+        <i class="ti ti-bottle card-icon" aria-hidden="true"></i>
+        <div class="card-label"><i class="ti ti-circle-filled" style="color:var(--c-coca)"></i> Coca-Cola</div>
+        <div class="card-value card-accent-coca" id="cnt-coca">0</div>
+        <div class="card-sub">garrafas identificadas</div>
+        <div class="rate-bar">
+          <div class="rate-fill" style="background:var(--c-coca)" id="bar-coca"></div>
+        </div>
+      </div>
+      <div class="card card-fanta">
+        <i class="ti ti-bottle card-icon" aria-hidden="true"></i>
+        <div class="card-label"><i class="ti ti-circle-filled" style="color:var(--c-fanta)"></i> Fanta</div>
+        <div class="card-value card-accent-fanta" id="cnt-fanta">0</div>
+        <div class="card-sub">garrafas identificadas</div>
+        <div class="rate-bar">
+          <div class="rate-fill" style="background:var(--c-fanta)" id="bar-fanta"></div>
+        </div>
+      </div>
+      <div class="card card-sprite">
+        <i class="ti ti-bottle card-icon" aria-hidden="true"></i>
+        <div class="card-label"><i class="ti ti-circle-filled" style="color:var(--c-sprite)"></i> Sprite</div>
+        <div class="card-value card-accent-sprite" id="cnt-sprite">0</div>
+        <div class="card-sub">garrafas identificadas</div>
+        <div class="rate-bar">
+          <div class="rate-fill" style="background:var(--c-sprite)" id="bar-sprite"></div>
+        </div>
+      </div>
+      <div class="card card-red">
+        <i class="ti ti-alert-triangle card-icon" aria-hidden="true"></i>
+        <div class="card-label"><i class="ti ti-circle-filled" style="color:var(--c-red)"></i> Erro de Fabricação</div>
+        <div class="card-value card-accent-red" id="cnt-error">0</div>
+        <div class="card-sub">unidades defeituosas</div>
+        <div class="rate-bar">
+          <div class="rate-fill" style="background:var(--c-red)" id="bar-error"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDDLE ROW -->
+    <div class="grid-mid">
+      <!-- CHART + CONVEYOR -->
+      <div class="card card-cyan">
+        <div class="section-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Produção em Tempo Real</div>
+        <div style="position:relative;height:180px;">
+          <canvas id="prodChart" role="img"
+            aria-label="Gráfico de barras mostrando produção por tipo de garrafa em tempo real">Produção por tipo de
+            garrafa.</canvas>
+        </div>
+        <div class="section-title" style="margin-top:12px;"><i class="ti ti-trending-up" aria-hidden="true"></i>
+          Histórico de Detecção</div>
+        <div style="position:relative;height:70px;">
+          <canvas id="sparkChart" role="img" aria-label="Gráfico de linha com histórico de detecções">Histórico de
+            detecções por segundo.</canvas>
+        </div>
+        <div class="conveyor-anim" id="conveyorAnim" title="Simulação visual da esteira">
+          <div class="conveyor-track" id="convTrack">
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+            <div class="conveyor-seg"></div>
+          </div>
+          <div class="conveyor-bottle" style="left:20%">🍾</div>
+          <div class="conveyor-bottle" style="left:60%">🍶</div>
+          <div class="conveyor-bottle" style="left:80%">🧴</div>
+        </div>
+      </div>
+
+      <!-- DONUT DIST -->
+      <div class="card card-blue">
+        <div class="section-title"><i class="ti ti-chart-pie" aria-hidden="true"></i> Distribuição Total</div>
+        <div class="donut-wrap">
+          <canvas id="donutChart" width="160" height="160" role="img"
+            aria-label="Gráfico rosca com distribuição percentual por marca">Distribuição por marca de garrafa.</canvas>
+          <div class="donut-center">
+            <div class="donut-total" id="totalCount">0</div>
+            <div class="donut-label">TOTAL</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="legend-row">
+            <div class="legend-dot" style="background:var(--c-coca)"></div>
+            <div class="legend-name">Coca-Cola</div>
+            <div class="legend-val card-accent-coca" id="pct-coca">0%</div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-dot" style="background:var(--c-fanta)"></div>
+            <div class="legend-name">Fanta</div>
+            <div class="legend-val card-accent-fanta" id="pct-fanta">0%</div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-dot" style="background:var(--c-sprite)"></div>
+            <div class="legend-name">Sprite</div>
+            <div class="legend-val card-accent-sprite" id="pct-sprite">0%</div>
+          </div>
+          <div class="legend-row">
+            <div class="legend-dot" style="background:var(--c-red)"></div>
+            <div class="legend-name">Erros</div>
+            <div class="legend-val card-accent-red" id="pct-error">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- METRICS RIGHT -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="card card-cyan">
+          <div class="card-label"><i class="ti ti-activity"></i> Taxa de Detecção</div>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <div class="card-value card-accent-cyan" id="detRate">0.0</div>
+            <div style="font-size:13px;color:var(--c-muted)">obj/s</div>
+          </div>
+          <div class="rate-bar">
+            <div class="rate-fill" style="background:var(--c-cyan);width:0%" id="bar-rate"></div>
+          </div>
+        </div>
+        <div class="card card-purple">
+          <div class="card-label"><i class="ti ti-cpu"></i> Confiança IA</div>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <div class="card-value card-accent-purple" id="aiConf">0.0</div>
+            <div style="font-size:13px;color:var(--c-muted)">%</div>
+          </div>
+          <div class="rate-bar">
+            <div class="rate-fill" style="background:var(--c-purple);width:0%" id="bar-conf"></div>
+          </div>
+        </div>
+        <div class="card card-green">
+          <div class="card-label"><i class="ti ti-clock"></i> Tempo de Ciclo</div>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <div class="card-value card-accent-green" id="cycleTime">0.0</div>
+            <div style="font-size:13px;color:var(--c-muted)">ms</div>
+          </div>
+          <div class="card-sub" id="cycleLabel">por detecção</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM -->
+    <div class="grid-bot">
+      <!-- FEED -->
+      <div class="card card-blue">
+        <div class="section-title"><i class="ti ti-list-details" aria-hidden="true"></i> Últimas Detecções</div>
+        <div id="feedList"></div>
+      </div>
+
+      <!-- SENSORS + CONTROLS -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="card card-green">
+          <div class="section-title"><i class="ti ti-radar" aria-hidden="true"></i> Status dos Sensores</div>
+          <div class="sensor-grid">
+            <div class="sensor-item">
+              <div class="sensor-light sensor-active" id="s1"></div>
+              <div class="sensor-name">Sensor IR</div>
+              <div class="sensor-val" id="sv1">ATIVO</div>
+            </div>
+            <div class="sensor-item">
+              <div class="sensor-light sensor-active" id="s2"></div>
+              <div class="sensor-name">Câmera</div>
+              <div class="sensor-val" id="sv2">OK</div>
+            </div>
+            <div class="sensor-item">
+              <div class="sensor-light sensor-active" id="s3"></div>
+              <div class="sensor-name">Arduino</div>
+              <div class="sensor-val" id="sv3">ONLINE</div>
+            </div>
+            <div class="sensor-item">
+              <div class="sensor-light sensor-active" id="s4"></div>
+              <div class="sensor-name">Modelo IA</div>
+              <div class="sensor-val" id="sv4">CARREGADO</div>
+            </div>
+            <div class="sensor-item">
+              <div class="sensor-light sensor-active" id="s5"></div>
+              <div class="sensor-name">Esteira</div>
+              <div class="sensor-val" id="sv5">GIRANDO</div>
+            </div>
+            <div class="sensor-item">
+              <div class="sensor-light sensor-active" id="s6"></div>
+              <div class="sensor-name">Rede</div>
+              <div class="sensor-val" id="sv6">LAN</div>
+            </div>
+          </div>
+          <div class="ctrl-row">
+            <button class="ctrl-btn ctrl-btn-start" onclick="setStatus('running')"><i class="ti ti-player-play"
+                aria-hidden="true"></i> LIGAR</button>
+            <button class="ctrl-btn ctrl-btn-stop" onclick="setStatus('stopped')"><i class="ti ti-player-stop"
+                aria-hidden="true"></i> PARAR</button>
+            <button class="ctrl-btn ctrl-btn-reset" onclick="resetAll()"><i class="ti ti-refresh"
+                aria-hidden="true"></i> RESET</button>
+          </div>
+        </div>
+
+        <div class="card card-orange">
+          <div class="section-title"><i class="ti ti-api" aria-hidden="true"></i> Endpoint de Recepção JSON</div>
+          <div
+            style="background:rgba(0,0,0,.3);border-radius:6px;padding:10px;font-size:10px;font-family:monospace;color:var(--c-cyan);line-height:1.7;border:1px solid rgba(255,107,53,.2);">
+            POST http://localhost:5050/data<br>
+            <span style="color:var(--c-muted)">Content-Type: application/json</span><br><br>
+            <span style="color:var(--c-orange)">{</span><br>
+            &nbsp;"coca": <span style="color:var(--c-yellow)">42</span>,<br>
+            &nbsp;"fanta": <span style="color:var(--c-yellow)">31</span>,<br>
+            &nbsp;"sprite": <span style="color:var(--c-yellow)">28</span>,<br>
+            &nbsp;"erro": <span style="color:var(--c-yellow)">2</span>,<br>
+            &nbsp;"status": <span style="color:var(--c-green)">"running"</span>,<br>
+            &nbsp;"taxa": <span style="color:var(--c-yellow)">4.2</span>,<br>
+            &nbsp;"confianca": <span style="color:var(--c-yellow)">93.7</span>,<br>
+            &nbsp;"ultimo": <span style="color:var(--c-green)">"Coca-Cola"</span><br>
+            <span style="color:var(--c-orange)">}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+
+</html>

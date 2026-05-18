@@ -1,0 +1,530 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --c-bg: #0a0e1a;
+    --c-panel: #0d1526;
+    --c-card: #111827;
+    --c-border: #1e3a5f;
+    --c-cyan: #00d4ff;
+    --c-green: #00ff88;
+    --c-orange: #ff6b35;
+    --c-yellow: #ffd700;
+    --c-red: #ff3366;
+    --c-blue: #3b82f6;
+    --c-purple: #a78bfa;
+    --c-text: #e2e8f0;
+    --c-muted: #64748b;
+    --c-coca: #cc0000;
+    --c-fanta: #ff7400;
+    --c-sprite: #1db954;
+  }
+  body, .dash-root { background: var(--c-bg); color: var(--c-text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+  .dash-root { padding: 12px; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--c-panel); border: 1px solid var(--c-border); border-radius: 10px; margin-bottom: 12px; }
+  .topbar-logo { display: flex; align-items: center; gap: 10px; }
+  .topbar-logo .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c-cyan); animation: pulse-dot 1.5s infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+  .topbar-title { font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--c-cyan); }
+  .topbar-sub { font-size: 10px; color: var(--c-muted); letter-spacing: 1px; }
+  .topbar-right { display: flex; align-items: center; gap: 16px; }
+  .clock { font-size: 18px; font-weight: 600; color: var(--c-text); font-variant-numeric: tabular-nums; }
+  .date-label { font-size: 10px; color: var(--c-muted); text-align: right; }
+  .status-pill { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 1px; border: 1px solid; }
+  .status-running { background: rgba(0,255,136,.08); border-color: var(--c-green); color: var(--c-green); }
+  .status-stopped { background: rgba(255,51,102,.08); border-color: var(--c-red); color: var(--c-red); }
+  .status-error { background: rgba(255,107,53,.08); border-color: var(--c-orange); color: var(--c-orange); }
+  .status-processing { background: rgba(0,212,255,.08); border-color: var(--c-cyan); color: var(--c-cyan); }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse-dot 1.2s infinite; }
+
+  .grid-main { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
+  .grid-mid { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .grid-bot { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: 10px; padding: 14px 16px; position: relative; overflow: hidden; }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; border-radius:10px 10px 0 0; }
+  .card-cyan::before { background: var(--c-cyan); }
+  .card-green::before { background: var(--c-green); }
+  .card-orange::before { background: var(--c-orange); }
+  .card-red::before { background: var(--c-red); }
+  .card-blue::before { background: var(--c-blue); }
+  .card-purple::before { background: var(--c-purple); }
+  .card-coca::before { background: var(--c-coca); }
+  .card-fanta::before { background: var(--c-fanta); }
+  .card-sprite::before { background: var(--c-sprite); }
+
+  .card-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--c-muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .card-label i { font-size: 13px; }
+  .card-value { font-size: 32px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .card-sub { font-size: 11px; color: var(--c-muted); margin-top: 4px; }
+  .card-accent-cyan { color: var(--c-cyan); }
+  .card-accent-green { color: var(--c-green); }
+  .card-accent-orange { color: var(--c-orange); }
+  .card-accent-red { color: var(--c-red); }
+  .card-accent-coca { color: var(--c-coca); }
+  .card-accent-fanta { color: var(--c-fanta); }
+  .card-accent-sprite { color: var(--c-sprite); }
+  .card-accent-blue { color: var(--c-blue); }
+  .card-accent-purple { color: var(--c-purple); }
+
+  .card-icon { position: absolute; right: 14px; top: 14px; font-size: 28px; opacity: .12; }
+
+  .rate-bar { height: 6px; background: rgba(255,255,255,.06); border-radius: 3px; margin-top: 10px; overflow: hidden; }
+  .rate-fill { height: 100%; border-radius: 3px; transition: width .6s ease; }
+
+  .section-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--c-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+  .donut-wrap { position: relative; display: flex; justify-content: center; align-items: center; }
+  .donut-center { position: absolute; text-align: center; pointer-events: none; }
+  .donut-total { font-size: 26px; font-weight: 700; color: var(--c-text); }
+  .donut-label { font-size: 10px; color: var(--c-muted); letter-spacing: 1px; }
+
+  .legend-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .legend-name { flex: 1; color: var(--c-text); }
+  .legend-val { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .mini-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .mini-bar-label { font-size: 11px; width: 70px; color: var(--c-text); flex-shrink: 0; }
+  .mini-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,.06); border-radius: 4px; overflow: hidden; }
+  .mini-bar-fill { height: 100%; border-radius: 4px; transition: width .8s ease; }
+  .mini-bar-val { font-size: 11px; width: 28px; text-align: right; font-variant-numeric: tabular-nums; color: var(--c-muted); }
+
+  .feed-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12px; animation: slidein .3s ease; }
+  @keyframes slidein { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+  .feed-badge { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; letter-spacing: .5px; border: 1px solid; }
+  .feed-time { color: var(--c-muted); font-size: 10px; margin-left: auto; font-variant-numeric: tabular-nums; }
+  .feed-badge-coca { background: rgba(204,0,0,.15); border-color: var(--c-coca); color: var(--c-coca); }
+  .feed-badge-fanta { background: rgba(255,116,0,.15); border-color: var(--c-fanta); color: var(--c-fanta); }
+  .feed-badge-sprite { background: rgba(29,185,84,.15); border-color: var(--c-sprite); color: var(--c-sprite); }
+  .feed-badge-error { background: rgba(255,51,102,.15); border-color: var(--c-red); color: var(--c-red); }
+
+  .sparkline-wrap { position: relative; height: 80px; }
+  .gauge-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .gauge-val { font-size: 22px; font-weight: 700; color: var(--c-cyan); margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .gauge-unit { font-size: 10px; color: var(--c-muted); }
+  .gauge-lbl { font-size: 10px; color: var(--c-muted); letter-spacing: 1px; text-transform: uppercase; }
+
+  .conveyor-anim { width: 100%; height: 36px; position: relative; overflow: hidden; background: rgba(255,255,255,.03); border-radius: 6px; border: 1px solid rgba(255,255,255,.07); margin-top: 10px; }
+  .conveyor-track { width: 200%; height: 6px; position: absolute; bottom: 7px; animation: conveyorMove 1.5s linear infinite; display: flex; }
+  .conveyor-seg { width: 30px; height: 6px; border-right: 4px solid var(--c-bg); background: var(--c-border); }
+  @keyframes conveyorMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+  .conveyor-bottle { position: absolute; top: 4px; animation: bottleMove 2.4s linear infinite; }
+  .conveyor-bottle:nth-child(2) { animation-delay: .8s; }
+  .conveyor-bottle:nth-child(3) { animation-delay: 1.6s; }
+  @keyframes bottleMove { from{left:100%} to{left:-30px} }
+
+  .sensor-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+  .sensor-item { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 8px; padding: 8px 10px; text-align: center; }
+  .sensor-light { width: 10px; height: 10px; border-radius: 50%; margin: 0 auto 4px; }
+  .sensor-active { background: var(--c-green); animation: pulse-dot 1.5s infinite; }
+  .sensor-inactive { background: var(--c-muted); }
+  .sensor-warn { background: var(--c-orange); animation: pulse-dot .8s infinite; }
+  .sensor-name { font-size: 9px; color: var(--c-muted); letter-spacing: .5px; text-transform: uppercase; }
+  .sensor-val { font-size: 12px; font-weight: 600; color: var(--c-text); margin-top: 1px; }
+
+  .ctrl-row { display: flex; gap: 8px; margin-top: 10px; }
+  .ctrl-btn { flex:1; padding: 7px; border-radius: 7px; border: 1px solid; background: transparent; cursor: pointer; font-size: 11px; font-weight: 600; letter-spacing: .5px; transition: background .15s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .ctrl-btn-start { border-color: var(--c-green); color: var(--c-green); }
+  .ctrl-btn-start:hover { background: rgba(0,255,136,.1); }
+  .ctrl-btn-stop { border-color: var(--c-red); color: var(--c-red); }
+  .ctrl-btn-stop:hover { background: rgba(255,51,102,.1); }
+  .ctrl-btn-reset { border-color: var(--c-muted); color: var(--c-muted); }
+  .ctrl-btn-reset:hover { background: rgba(255,255,255,.05); }
+
+  @media(max-width:700px){
+    .grid-main{grid-template-columns:1fr 1fr;}
+    .grid-mid{grid-template-columns:1fr;}
+    .grid-bot{grid-template-columns:1fr;}
+    .topbar-sub{display:none;}
+  }
+</style>
+
+<div class="dash-root">
+  <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Dashboard de monitoramento industrial — esteira automatizada de classificação de garrafas</h2>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="logo-dot"></div>
+      <div>
+        <div class="topbar-title"><i class="ti ti-cpu" aria-hidden="true"></i> IndústrIA 4.0 &nbsp;—&nbsp; Sistema Supervisório</div>
+        <div class="topbar-sub">Esteira Automatizada · Visão Computacional · Arduino · Google Teachable Machine</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div>
+        <div class="clock" id="clock">--:--:--</div>
+        <div class="date-label" id="dateLbl">---</div>
+      </div>
+      <div class="status-pill status-running" id="statusPill">
+        <div class="status-dot"></div>
+        <span id="statusText">PROCESSANDO</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP COUNTERS -->
+  <div class="grid-main">
+    <div class="card card-coca">
+      <i class="ti ti-bottle card-icon" aria-hidden="true"></i>
+      <div class="card-label"><i class="ti ti-circle-filled" style="color:var(--c-coca)"></i> Coca-Cola</div>
+      <div class="card-value card-accent-coca" id="cnt-coca">0</div>
+      <div class="card-sub">garrafas identificadas</div>
+      <div class="rate-bar"><div class="rate-fill" style="background:var(--c-coca)" id="bar-coca"></div></div>
+    </div>
+    <div class="card card-fanta">
+      <i class="ti ti-bottle card-icon" aria-hidden="true"></i>
+      <div class="card-label"><i class="ti ti-circle-filled" style="color:var(--c-fanta)"></i> Fanta</div>
+      <div class="card-value card-accent-fanta" id="cnt-fanta">0</div>
+      <div class="card-sub">garrafas identificadas</div>
+      <div class="rate-bar"><div class="rate-fill" style="background:var(--c-fanta)" id="bar-fanta"></div></div>
+    </div>
+    <div class="card card-sprite">
+      <i class="ti ti-bottle card-icon" aria-hidden="true"></i>
+      <div class="card-label"><i class="ti ti-circle-filled" style="color:var(--c-sprite)"></i> Sprite</div>
+      <div class="card-value card-accent-sprite" id="cnt-sprite">0</div>
+      <div class="card-sub">garrafas identificadas</div>
+      <div class="rate-bar"><div class="rate-fill" style="background:var(--c-sprite)" id="bar-sprite"></div></div>
+    </div>
+    <div class="card card-red">
+      <i class="ti ti-alert-triangle card-icon" aria-hidden="true"></i>
+      <div class="card-label"><i class="ti ti-circle-filled" style="color:var(--c-red)"></i> Erro de Fabricação</div>
+      <div class="card-value card-accent-red" id="cnt-error">0</div>
+      <div class="card-sub">unidades defeituosas</div>
+      <div class="rate-bar"><div class="rate-fill" style="background:var(--c-red)" id="bar-error"></div></div>
+    </div>
+  </div>
+
+  <!-- MIDDLE ROW -->
+  <div class="grid-mid">
+    <!-- CHART + CONVEYOR -->
+    <div class="card card-cyan">
+      <div class="section-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Produção em Tempo Real</div>
+      <div style="position:relative;height:180px;">
+        <canvas id="prodChart" role="img" aria-label="Gráfico de barras mostrando produção por tipo de garrafa em tempo real">Produção por tipo de garrafa.</canvas>
+      </div>
+      <div class="section-title" style="margin-top:12px;"><i class="ti ti-trending-up" aria-hidden="true"></i> Histórico de Detecção</div>
+      <div style="position:relative;height:70px;">
+        <canvas id="sparkChart" role="img" aria-label="Gráfico de linha com histórico de detecções">Histórico de detecções por segundo.</canvas>
+      </div>
+      <div class="conveyor-anim" id="conveyorAnim" title="Simulação visual da esteira">
+        <div class="conveyor-track" id="convTrack">
+          <div class="conveyor-seg"></div><div class="conveyor-seg"></div><div class="conveyor-seg"></div>
+          <div class="conveyor-seg"></div><div class="conveyor-seg"></div><div class="conveyor-seg"></div>
+          <div class="conveyor-seg"></div><div class="conveyor-seg"></div><div class="conveyor-seg"></div>
+          <div class="conveyor-seg"></div><div class="conveyor-seg"></div><div class="conveyor-seg"></div>
+          <div class="conveyor-seg"></div><div class="conveyor-seg"></div><div class="conveyor-seg"></div>
+        </div>
+        <div class="conveyor-bottle" style="left:20%">🍾</div>
+        <div class="conveyor-bottle" style="left:60%">🍶</div>
+        <div class="conveyor-bottle" style="left:80%">🧴</div>
+      </div>
+    </div>
+
+    <!-- DONUT DIST -->
+    <div class="card card-blue">
+      <div class="section-title"><i class="ti ti-chart-pie" aria-hidden="true"></i> Distribuição Total</div>
+      <div class="donut-wrap">
+        <canvas id="donutChart" width="160" height="160" role="img" aria-label="Gráfico rosca com distribuição percentual por marca">Distribuição por marca de garrafa.</canvas>
+        <div class="donut-center">
+          <div class="donut-total" id="totalCount">0</div>
+          <div class="donut-label">TOTAL</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="legend-row"><div class="legend-dot" style="background:var(--c-coca)"></div><div class="legend-name">Coca-Cola</div><div class="legend-val card-accent-coca" id="pct-coca">0%</div></div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--c-fanta)"></div><div class="legend-name">Fanta</div><div class="legend-val card-accent-fanta" id="pct-fanta">0%</div></div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--c-sprite)"></div><div class="legend-name">Sprite</div><div class="legend-val card-accent-sprite" id="pct-sprite">0%</div></div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--c-red)"></div><div class="legend-name">Erros</div><div class="legend-val card-accent-red" id="pct-error">0%</div></div>
+      </div>
+    </div>
+
+    <!-- METRICS RIGHT -->
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card card-cyan">
+        <div class="card-label"><i class="ti ti-activity"></i> Taxa de Detecção</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <div class="card-value card-accent-cyan" id="detRate">0.0</div>
+          <div style="font-size:13px;color:var(--c-muted)">obj/s</div>
+        </div>
+        <div class="rate-bar"><div class="rate-fill" style="background:var(--c-cyan);width:0%" id="bar-rate"></div></div>
+      </div>
+      <div class="card card-purple">
+        <div class="card-label"><i class="ti ti-cpu"></i> Confiança IA</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <div class="card-value card-accent-purple" id="aiConf">0.0</div>
+          <div style="font-size:13px;color:var(--c-muted)">%</div>
+        </div>
+        <div class="rate-bar"><div class="rate-fill" style="background:var(--c-purple);width:0%" id="bar-conf"></div></div>
+      </div>
+      <div class="card card-green">
+        <div class="card-label"><i class="ti ti-clock"></i> Tempo de Ciclo</div>
+        <div style="display:flex;align-items:baseline;gap:6px;">
+          <div class="card-value card-accent-green" id="cycleTime">0.0</div>
+          <div style="font-size:13px;color:var(--c-muted)">ms</div>
+        </div>
+        <div class="card-sub" id="cycleLabel">por detecção</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="grid-bot">
+    <!-- FEED -->
+    <div class="card card-blue">
+      <div class="section-title"><i class="ti ti-list-details" aria-hidden="true"></i> Últimas Detecções</div>
+      <div id="feedList"></div>
+    </div>
+
+    <!-- SENSORS + CONTROLS -->
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card card-green">
+        <div class="section-title"><i class="ti ti-radar" aria-hidden="true"></i> Status dos Sensores</div>
+        <div class="sensor-grid">
+          <div class="sensor-item">
+            <div class="sensor-light sensor-active" id="s1"></div>
+            <div class="sensor-name">Sensor IR</div>
+            <div class="sensor-val" id="sv1">ATIVO</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-light sensor-active" id="s2"></div>
+            <div class="sensor-name">Câmera</div>
+            <div class="sensor-val" id="sv2">OK</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-light sensor-active" id="s3"></div>
+            <div class="sensor-name">Arduino</div>
+            <div class="sensor-val" id="sv3">ONLINE</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-light sensor-active" id="s4"></div>
+            <div class="sensor-name">Modelo IA</div>
+            <div class="sensor-val" id="sv4">CARREGADO</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-light sensor-active" id="s5"></div>
+            <div class="sensor-name">Esteira</div>
+            <div class="sensor-val" id="sv5">GIRANDO</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-light sensor-active" id="s6"></div>
+            <div class="sensor-name">Rede</div>
+            <div class="sensor-val" id="sv6">LAN</div>
+          </div>
+        </div>
+        <div class="ctrl-row">
+          <button class="ctrl-btn ctrl-btn-start" onclick="setStatus('running')"><i class="ti ti-player-play" aria-hidden="true"></i> LIGAR</button>
+          <button class="ctrl-btn ctrl-btn-stop" onclick="setStatus('stopped')"><i class="ti ti-player-stop" aria-hidden="true"></i> PARAR</button>
+          <button class="ctrl-btn ctrl-btn-reset" onclick="resetAll()"><i class="ti ti-refresh" aria-hidden="true"></i> RESET</button>
+        </div>
+      </div>
+
+      <div class="card card-orange">
+        <div class="section-title"><i class="ti ti-api" aria-hidden="true"></i> Endpoint de Recepção JSON</div>
+        <div style="background:rgba(0,0,0,.3);border-radius:6px;padding:10px;font-size:10px;font-family:monospace;color:var(--c-cyan);line-height:1.7;border:1px solid rgba(255,107,53,.2);">
+          POST http://localhost:5050/data<br>
+          <span style="color:var(--c-muted)">Content-Type: application/json</span><br><br>
+          <span style="color:var(--c-orange)">{</span><br>
+          &nbsp;"coca": <span style="color:var(--c-yellow)">42</span>,<br>
+          &nbsp;"fanta": <span style="color:var(--c-yellow)">31</span>,<br>
+          &nbsp;"sprite": <span style="color:var(--c-yellow)">28</span>,<br>
+          &nbsp;"erro": <span style="color:var(--c-yellow)">2</span>,<br>
+          &nbsp;"status": <span style="color:var(--c-green)">"running"</span>,<br>
+          &nbsp;"taxa": <span style="color:var(--c-yellow)">4.2</span>,<br>
+          &nbsp;"confianca": <span style="color:var(--c-yellow)">93.7</span>,<br>
+          &nbsp;"ultimo": <span style="color:var(--c-green)">"Coca-Cola"</span><br>
+          <span style="color:var(--c-orange)">}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const state = { coca:0, fanta:0, sprite:0, erro:0, status:'processing', taxa:0, confianca:0, ciclo:0, running:true };
+const sparkData = Array(20).fill(0);
+
+const $ = id => document.getElementById(id);
+const rand = (a,b) => Math.random()*(b-a)+a;
+
+function formatTime(d){ return d.toLocaleTimeString('pt-BR'); }
+function formatDate(d){ return d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}); }
+
+function tick(){
+  const d=new Date();
+  $('clock').textContent=formatTime(d);
+  $('dateLbl').textContent=formatDate(d);
+}
+tick(); setInterval(tick,1000);
+
+let prodChart, donutChart, sparkChart;
+Chart.defaults.color = '#64748b';
+
+function initCharts(){
+  prodChart = new Chart($('prodChart'),{
+    type:'bar',
+    data:{
+      labels:['Coca-Cola','Fanta','Sprite','Erro'],
+      datasets:[{
+        label:'Unidades',
+        data:[0,0,0,0],
+        backgroundColor:['rgba(204,0,0,.7)','rgba(255,116,0,.7)','rgba(29,185,84,.7)','rgba(255,51,102,.7)'],
+        borderColor:['#cc0000','#ff7400','#1db954','#ff3366'],
+        borderWidth:1, borderRadius:4
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{font:{size:10}},beginAtZero:true}
+      }
+    }
+  });
+
+  donutChart = new Chart($('donutChart'),{
+    type:'doughnut',
+    data:{
+      labels:['Coca-Cola','Fanta','Sprite','Erro'],
+      datasets:[{data:[1,1,1,1],backgroundColor:['#cc0000','#ff7400','#1db954','#ff3366'],borderWidth:0,hoverOffset:4}]
+    },
+    options:{responsive:false,plugins:{legend:{display:false}},cutout:'70%',animation:{duration:400}}
+  });
+
+  sparkChart = new Chart($('sparkChart'),{
+    type:'line',
+    data:{
+      labels:sparkData.map((_,i)=>i),
+      datasets:[{data:sparkData,borderColor:'#00d4ff',borderWidth:1.5,fill:true,
+        backgroundColor:'rgba(0,212,255,.07)',pointRadius:0,tension:.4}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:200},
+      plugins:{legend:{display:false}},
+      scales:{x:{display:false},y:{display:false,beginAtZero:true}}
+    }
+  });
+}
+
+function updateCharts(){
+  const {coca,fanta,sprite,erro} = state;
+  const total = coca+fanta+sprite+erro||1;
+  prodChart.data.datasets[0].data=[coca,fanta,sprite,erro];
+  prodChart.update('none');
+  donutChart.data.datasets[0].data=[coca||.01,fanta||.01,sprite||.01,erro||.01];
+  donutChart.update('none');
+  sparkData.push(state.taxa); sparkData.shift();
+  sparkChart.data.datasets[0].data=[...sparkData];
+  sparkChart.update('none');
+
+  $('cnt-coca').textContent=coca;
+  $('cnt-fanta').textContent=fanta;
+  $('cnt-sprite').textContent=sprite;
+  $('cnt-error').textContent=erro;
+  $('totalCount').textContent=coca+fanta+sprite+erro;
+
+  const pct = v => ((v/total)*100).toFixed(0)+'%';
+  $('pct-coca').textContent=pct(coca);
+  $('pct-fanta').textContent=pct(fanta);
+  $('pct-sprite').textContent=pct(sprite);
+  $('pct-error').textContent=pct(erro);
+
+  const maxV = Math.max(coca,fanta,sprite,erro,1);
+  $('bar-coca').style.width=(coca/maxV*100)+'%';
+  $('bar-fanta').style.width=(fanta/maxV*100)+'%';
+  $('bar-sprite').style.width=(sprite/maxV*100)+'%';
+  $('bar-error').style.width=(erro/maxV*100)+'%';
+
+  $('detRate').textContent=state.taxa.toFixed(1);
+  $('bar-rate').style.width=Math.min(state.taxa/10*100,100)+'%';
+  $('aiConf').textContent=state.confianca.toFixed(1);
+  $('bar-conf').style.width=state.confianca+'%';
+  $('cycleTime').textContent=state.ciclo.toFixed(0);
+}
+
+const feedItems = [];
+const classes = ['Coca-Cola','Fanta','Sprite','Erro'];
+const badges = ['feed-badge-coca','feed-badge-fanta','feed-badge-sprite','feed-badge-error'];
+const icons = ['🥤','🍊','💚','⚠️'];
+
+function addFeed(cls, time){
+  const idx = classes.indexOf(cls);
+  if(idx<0) return;
+  feedItems.unshift({cls, badge:badges[idx], icon:icons[idx], time:formatTime(time||new Date())});
+  if(feedItems.length>8) feedItems.pop();
+  const el = $('feedList');
+  el.innerHTML = feedItems.map(f=>`
+    <div class="feed-item">
+      <span>${f.icon}</span>
+      <span class="feed-badge ${f.badge}">${f.cls}</span>
+      <i class="ti ti-robot" style="font-size:13px;color:var(--c-muted)" aria-hidden="true"></i>
+      <span style="font-size:11px;color:var(--c-muted)">Detectado via TM</span>
+      <span class="feed-time">${f.time}</span>
+    </div>`).join('');
+}
+
+const statusConfig = {
+  running: {cls:'status-running', text:'PROCESSANDO', conv:'running'},
+  stopped: {cls:'status-stopped', text:'PARADA', conv:'stopped'},
+  error: {cls:'status-error', text:'ERRO', conv:'error'},
+  processing: {cls:'status-processing', text:'INICIALIZANDO', conv:'processing'}
+};
+
+function setStatus(s){
+  state.status=s; state.running=(s==='running'||s==='processing');
+  const cfg = statusConfig[s]||statusConfig.running;
+  const pill=$('statusPill');
+  pill.className='status-pill '+cfg.cls;
+  $('statusText').textContent=cfg.text;
+  const track=$('convTrack');
+  track.style.animationPlayState=state.running?'running':'paused';
+}
+
+function resetAll(){
+  state.coca=state.fanta=state.sprite=state.erro=0;
+  sparkData.fill(0);
+  feedItems.length=0;
+  $('feedList').innerHTML='';
+  updateCharts();
+}
+
+function simulateTick(){
+  if(!state.running) return;
+  const roll=Math.random();
+  if(roll<.38) state.coca++;
+  else if(roll<.68) state.fanta++;
+  else if(roll<.92) state.sprite++;
+  else state.erro++;
+  state.taxa = parseFloat((rand(2,8)).toFixed(1));
+  state.confianca = parseFloat((rand(82,99)).toFixed(1));
+  state.ciclo = parseFloat((rand(120,340)).toFixed(0));
+
+  const picked = roll<.38?'Coca-Cola':roll<.68?'Fanta':roll<.92?'Sprite':'Erro';
+  addFeed(picked, new Date());
+  updateCharts();
+}
+
+window.setStatus = setStatus;
+window.resetAll = resetAll;
+
+window.receiveJSON = function(json){
+  try{
+    const d = typeof json==='string'?JSON.parse(json):json;
+    if(d.coca!==undefined) state.coca=d.coca;
+    if(d.fanta!==undefined) state.fanta=d.fanta;
+    if(d.sprite!==undefined) state.sprite=d.sprite;
+    if(d.erro!==undefined) state.erro=d.erro;
+    if(d.status) setStatus(d.status);
+    if(d.taxa!==undefined) state.taxa=d.taxa;
+    if(d.confianca!==undefined) state.confianca=d.confianca;
+    if(d.ciclo!==undefined) state.ciclo=d.ciclo;
+    if(d.ultimo) addFeed(d.ultimo);
+    updateCharts();
+  }catch(e){console.error('JSON inválido',e);}
+};
+
+initCharts();
+setInterval(simulateTick, 1100);
+</script>

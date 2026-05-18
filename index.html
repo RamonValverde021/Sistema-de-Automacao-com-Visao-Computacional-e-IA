@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCADA | Supervisório de Classificação</title>
+    <link rel="icon" type="image/png" href="images/Logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <script language="JavaScript" src="script.js" defer></script>
+    <script language="JavaScript" src="connection-websocket.js" defer></script>
+</head>
+
+<body class="min-h-screen p-4 md:p-6 flex flex-col">
+
+    <!-- Cabeçalho -->
+    <header class="flex flex-col md:flex-row justify-between items-center mb-8 pb-4 border-b border-cyan-500/30">
+        <div class="flex items-center gap-4 mb-4 md:mb-0">
+            <i class="fa-solid fa-microchip text-4xl text-glow-cyan"></i>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-wider text-white">SYS<span
+                        class="text-glow-cyan">VISION</span> 4.0</h1>
+                <p class="text-cyan-500/70 text-sm tracking-widest">MONITORAMENTO DE ESTEIRA AUTOMATIZADA</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 glow-panel px-4 py-2">
+            <div id="connection-dot" class="w-3 h-3 rounded-full bg-green-500 status-pulse"></div>
+            <span id="connection-text" class="text-sm font-bold text-glow-green tracking-wider uppercase">Conectado ao
+                Python</span>
+        </div>
+    </header>
+
+    <!-- Grid Principal -->
+    <main class="flex-grow grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+        <!-- Status Geral da Esteira -->
+        <div class="glow-panel p-6 xl:col-span-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="p-4 bg-gray-800/50 rounded-full border border-gray-700">
+                    <i class="fa-solid fa-cogs text-3xl text-gray-400" id="gear-icon"></i>
+                </div>
+                <div>
+                    <h2 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-1">Status da Esteira</h2>
+                    <div id="belt-status" class="text-2xl font-orbitron font-bold text-glow-green">PROCESSANDO</div>
+                </div>
+            </div>
+            <div class="text-center md:text-right">
+                <h2 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-1">Taxa de Detecção</h2>
+                <div class="text-3xl font-orbitron font-bold text-white"><span id="detection-rate">0</span> <span
+                        class="text-sm text-cyan-500">un/min</span></div>
+            </div>
+        </div>
+
+        <!-- Cards de Contagem -->
+        <div class="glow-panel p-6 flex items-center justify-between relative overflow-hidden">
+            <div class="absolute -right-6 -top-6 opacity-5"><i class="fa-solid fa-bottle-water text-9xl"></i></div>
+            <div class="z-10">
+                <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-2">Coca-Cola</h3>
+                <div class="text-4xl font-orbitron font-bold text-white" id="count-coca">0</div>
+            </div>
+            <i class="fa-solid fa-bottle-water text-3xl text-red-500 z-10"></i>
+        </div>
+
+        <div class="glow-panel p-6 flex items-center justify-between relative overflow-hidden">
+            <div class="absolute -right-6 -top-6 opacity-5"><i class="fa-solid fa-bottle-water text-9xl"></i></div>
+            <div class="z-10">
+                <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-2">Fanta</h3>
+                <div class="text-4xl font-orbitron font-bold text-white" id="count-fanta">0</div>
+            </div>
+            <i class="fa-solid fa-bottle-water text-3xl text-orange-500 z-10"></i>
+        </div>
+
+        <div class="glow-panel p-6 flex items-center justify-between relative overflow-hidden">
+            <div class="absolute -right-6 -top-6 opacity-5"><i class="fa-solid fa-bottle-water text-9xl"></i></div>
+            <div class="z-10">
+                <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-2">Sprite</h3>
+                <div class="text-4xl font-orbitron font-bold text-white" id="count-sprite">0</div>
+            </div>
+            <i class="fa-solid fa-bottle-water text-3xl text-green-500 z-10"></i>
+        </div>
+
+        <div class="glow-panel p-6 flex items-center justify-between relative overflow-hidden border-red-500/30">
+            <div class="absolute -right-6 -top-6 opacity-5"><i class="fa-solid fa-triangle-exclamation text-9xl"></i>
+            </div>
+            <div class="z-10">
+                <h3 class="text-red-400 text-sm uppercase font-bold tracking-widest mb-2">Erros / Descarte</h3>
+                <div class="text-4xl font-orbitron font-bold text-glow-red" id="count-error">0</div>
+            </div>
+            <i class="fa-solid fa-triangle-exclamation text-3xl text-red-500 z-10"></i>
+        </div>
+
+        <!-- Gráfico em Tempo Real -->
+        <div class="glow-panel p-6 xl:col-span-3">
+            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-cyan-500"></i> Fluxo de Processamento (Tempo Real)
+            </h3>
+            <div class="h-64 w-full">
+                <canvas id="rateChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Log de Identificação -->
+        <div class="glow-panel p-6 xl:col-span-1 flex flex-col">
+            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-cyan-500"></i> Últimas Leituras
+            </h3>
+            <div id="log-container" class="flex-grow overflow-y-auto space-y-2 pr-2 h-64">
+                <!-- Logs injetados via JS -->
+            </div>
+        </div>
+
+    </main>
+</body>
+
+</html>

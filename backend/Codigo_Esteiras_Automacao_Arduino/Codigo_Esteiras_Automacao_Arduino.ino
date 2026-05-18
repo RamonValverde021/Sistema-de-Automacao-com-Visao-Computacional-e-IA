@@ -7,7 +7,7 @@
 
 //==================== PINOUT ====================//
 // Pinagem Digital
-#define pin_Sensor_Limite_Esteira 14  // Limite aonde a garrafinha chega antes de cair da esteira
+#define pin_Chave_Fim_de_Curso_Separadora 14 // A0 - Limite aonde a garrafinha chega antes de cair da esteira
 #define pin_Motor_Separadora_H 13
 #define pin_Motor_Separadora_AH 12
 #define pin_Motor_Separadora_PWM 11
@@ -18,11 +18,10 @@
 #define pin_Sensor_Cancela 6
 #define pin_Transmissor_Lazer 5              // Diodo Lazer
 #define pin_Receptor_Lazer_D 4               // LDR, leitura digital
-#define pin_Chave_Fim_de_Curso_Separadora 3  // Chave fim de curso da esteira separadora
-#define pin_Encolder_Motor_Separadora 2      // A0
-
+#define pin_Sensor_Limite_Esteira 3          // Chave fim de curso da esteira separadora
+#define pin_Encolder_Motor_Separadora 2      
 // Pinagem Analogica
-#define pin_Receptor_Lazer_A A1  // LDR, leitura analogica
+#define pin_Receptor_Lazer_A A1              // LDR, leitura analogica
 
 // Variaveis Display 20x04 --------------------
 // Configure o endereço do LCD para 0x27 para um Display de 16 caracteres e 2 linhas.
@@ -31,20 +30,18 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 //==================== VARIÁVEIS GLOBAIS ====================//
 const byte potenciaEstSep = 125;  // 175 = Potencia maxima com precisão
 const byte potenciaEstPrinc = 50;
+const byte potenciaLazer = 10;
 
+//==================== FLAGS ====================//
 const byte posicaoCocaCola = 5;
 const byte posicaoSprite = 10;
 const byte posicaoFantaLaranja = 15;
 const byte posicaoFantaUva = 20;
 
-
-//==================== Flag ====================//
-
-
 //==================== PROTOTIPAÇÃO DE FUNÇÕES ====================//
 void _posicaoInicialEsteiraSeparadora();
 void _posicaoEsteiraSeparadora(int coordenada);
-
+void _paraMotor();
 
 //==================== CODIGO PRINCIPAL ====================//
 void setup() {
@@ -72,19 +69,28 @@ void setup() {
   digitalWrite(pin_Motor_Esteira_AH, LOW);
   digitalWrite(pin_Servo_Cancela, LOW);
   digitalWrite(pin_Transmissor_Lazer, LOW);
+  /*
+  // Inicia o display
+  lcd.begin();      // Inicializa o LCD
+  lcd.backlight();  // Acenda a luz de fundo
+  lcd.noDisplay();
+  delay(100);
+  lcd.clear();
+  lcd.display();
+  delay(100);
 
   // Inicializando Sistema
-  /*
-  Serial.println("     INICIANDO ROBO     ");
-  Serial.println("      ARM MARK III      ");
-  lcd.setCursor(1, 0);  // Coluna 1 Linha 0
-  lcd.print("INICIANDO ROBO");
-  lcd.setCursor(2, 1);  // Coluna 3 Linha 1
-  lcd.print("ARM MARK III");
+  Serial.println("   INICIANDO AUTOMACAO  ");
+  Serial.println("       VISION BELT      ");
+  lcd.setCursor(1, 0);  // Coluna 0 Linha 0
+  lcd.print("INICIANDO automacao");
+  lcd.setCursor(2, 1);  // Coluna 4 Linha 1
+  lcd.print("VISION BELT");
   delay(500);  // 5000
-  Serial.println("-----------------------------> Robo Inicializado com Sucesso <-----------------------------");
+  Serial.println("-----------------------------> Automação Inicializada com Sucesso <-----------------------------");
   lcd.clear();
 */
+  analogWrite(pin_Transmissor_Lazer, potenciaLazer);
 
   // Inicializa funções
 
@@ -95,20 +101,10 @@ void setup() {
   delay(500);
   _posicaoEsteiraSeparadora(posicaoFantaUva);
   delay(500);
+  _posicaoEsteiraSeparadora(posicaoSprite);
+  delay(500);
   _posicaoEsteiraSeparadora(posicaoFantaLaranja);
   delay(500);
-
-
-  // Inicia o display
-  /*
-  lcd.begin();      // initialize the LCD
-  lcd.backlight();  // Turn on the blacklight and print a message.
-  lcd.noDisplay();
-  delay(100);
-  lcd.clear();
-  lcd.display();
-  delay(100);
-  */
 }
 
 void loop() {
@@ -117,7 +113,7 @@ void loop() {
 
 /*
 lcd.setCursor(0, 0);  // Imprime o texto na Coluna 0 e Linha 0
-    lcd.print("0");
-    lcd.setCursor(1, 0);  // Imprime o texto na Coluna 1 e Linha 0
-    lcd.print(dt.day(), DEC);
+lcd.print("Ola");
+lcd.setCursor(0, 1);  // Imprime o texto na Coluna 0 e Linha 1
+lcd.print("Mundo");
 */
