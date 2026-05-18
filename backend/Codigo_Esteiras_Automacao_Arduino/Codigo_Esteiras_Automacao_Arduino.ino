@@ -4,6 +4,7 @@
 #include <EEPROM.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <Servo.h>
 
 //==================== PINOUT ====================//
 // Pinagem Digital
@@ -27,6 +28,9 @@
 // Configure o endereço do LCD para 0x27 para um Display de 16 caracteres e 2 linhas.
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
+// Variaveis Servo Cancela --------------------
+Servo servoCancela;
+
 //==================== VARIÁVEIS GLOBAIS ====================//
 const byte potenciaEstSep = 125;  // 175 = Potencia maxima com precisão
 const byte potenciaEstPrinc = 50;
@@ -42,6 +46,8 @@ const byte posicaoFantaUva = 20;
 void _posicaoInicialEsteiraSeparadora();
 void _posicaoEsteiraSeparadora(int coordenada);
 void _paraMotor();
+void _abreCancela();
+void _fechaCancela() ;
 
 //==================== CODIGO PRINCIPAL ====================//
 void setup() {
@@ -69,6 +75,9 @@ void setup() {
   digitalWrite(pin_Motor_Esteira_AH, LOW);
   digitalWrite(pin_Servo_Cancela, LOW);
   digitalWrite(pin_Transmissor_Lazer, LOW);
+  // Definindo servo
+  servoCancela.attach(pin_Servo_Cancela);
+   _fechaCancela();
   /*
   // Inicia o display
   lcd.begin();      // Inicializa o LCD
