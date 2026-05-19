@@ -1,32 +1,24 @@
-int coordenadaAtual = 0;           // Coordenada da esteira separadora
-int estado_Atual_Encolder = 0;     // Estado atual do botão
-int estado_Anterior_Encolder = 0;  // Estado anterior do botão
-int contador = 0;                  // Contagem de cliques do botão
-int contagemMovimentacao = 0;      // Flag para contar quantas vezes já chamou a esteira
+int digitalPin = 4;
 
-void _posicaoInicialEsteiraSeparadora() {
-  int btn_FimDeCurso = 0;
-  // Arranque no motor
-  analogWrite(pin_Motor_Separadora_PWM, potenciaEstSep);
-  digitalWrite(pin_Motor_Separadora_H, 1);
-  digitalWrite(pin_Motor_Separadora_AH, 0);
-  delay(50);
-  while (btn_FimDeCurso == 0) {
-    btn_FimDeCurso = digitalRead(pin_Chave_Fim_de_Curso_Separadora);
-    analogWrite(pin_Motor_Separadora_PWM, 50);
-  }
-  // Desliga o motor
-  _paraMotor();
-  // Atualiza a coordena da esteira separadora para 0
-  coordenadaAtual = 0;
-  delay(500);
-  // Leva a esteira para a outra extremidade
-  _posicaoEsteiraSeparadora(100);
+void setup() {
+  Serial.begin(9600);
+  pinMode(digitalPin, INPUT);
 }
 
+void loop() {
+  int sensorDigital = digitalRead(digitalPin);
+  if (sensorDigital == 1){
+    Serial.println("Objeto Detectado");
+  }
+  delay(500);
+}
+
+
+
+/*
 void _posicaoEsteiraSeparadora(int novaCoordenada) {
   // Defino um range limite entre 0 a 21
-  novaCoordenada = constrain(novaCoordenada, 0, 21);
+  novaCoordenada = constrain(novaCoordenada, 0, limiteEsteiraSeparadora); //21
   // Atualiza o contador com a posição atual da esteira
   contador = coordenadaAtual;
   // Eleva a potencia de trabalho no motor
@@ -75,21 +67,10 @@ void _posicaoEsteiraSeparadora(int novaCoordenada) {
 
   // Realiza a manutenção das coordenadas
   contagemMovimentacao++;
-  if (contagemMovimentacao == 5) {
+  if (contagemMovimentacao == 20) { //5
     delay(500);
     contagemMovimentacao = 0;
     _posicaoInicialEsteiraSeparadora();
   }
 }
-
-void _paraMotor() {
-  // Trava o motor no ponto desejado
-  analogWrite(pin_Motor_Separadora_PWM, 255);
-  digitalWrite(pin_Motor_Separadora_H, 1);
-  digitalWrite(pin_Motor_Separadora_AH, 1);
-  delay(100);
-  // Alivia a tensão no motor
-  analogWrite(pin_Motor_Separadora_PWM, 0);
-  digitalWrite(pin_Motor_Separadora_H, 0);
-  digitalWrite(pin_Motor_Separadora_AH, 0);
-}
+*/
