@@ -37,14 +37,17 @@ const rateChart = new Chart(ctx, {
 });
 
 // --- Variáveis de Estado ---
-let totals = { coca: 0, fanta: 0, sprite: 0, erro: 0 };
+let totals = { coca: 0, fanta: 0, fanta_uva: 0, sprite: 0, erro: 0 };
 const logContainer = document.getElementById('log-container');
 
 // --- Função para Atualizar a Interface com o JSON do Python ---
 function updateDashboard(data) {
     // Atualiza Contadores
     document.getElementById('count-coca').innerText = data.counts.coca;
-    document.getElementById('count-fanta').innerText = data.counts.fanta;
+    document.getElementById('count-fanta-laranja').innerText = data.counts.fanta;
+    if (document.getElementById('count-fanta-uva') && data.counts.fanta_uva !== undefined) { 
+        document.getElementById('count-fanta-uva').innerText = data.counts.fanta_uva; 
+    }
     document.getElementById('count-sprite').innerText = data.counts.sprite;
     document.getElementById('count-error').innerText = data.counts.erro;
 

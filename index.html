@@ -34,10 +34,10 @@
     </header>
 
     <!-- Grid Principal -->
-    <main class="flex-grow grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <main class="flex-grow grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
 
         <!-- Status Geral da Esteira -->
-        <div class="glow-panel p-6 xl:col-span-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="glow-panel p-6 xl:col-span-5 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-4">
                 <div class="p-4 bg-gray-800/50 rounded-full border border-gray-700">
                     <i class="fa-solid fa-cogs text-3xl text-gray-400" id="gear-icon"></i>
@@ -67,8 +67,17 @@
         <div class="glow-panel p-6 flex items-center justify-between relative overflow-hidden">
             <div class="absolute -right-6 -top-6 opacity-5"><i class="fa-solid fa-bottle-water text-9xl"></i></div>
             <div class="z-10">
-                <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-2">Fanta</h3>
-                <div class="text-4xl font-orbitron font-bold text-white" id="count-fanta">0</div>
+                <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-2">Sprite</h3>
+                <div class="text-4xl font-orbitron font-bold text-white" id="count-sprite">0</div>
+            </div>
+            <i class="fa-solid fa-bottle-water text-3xl text-green-500 z-10"></i>
+        </div>
+
+        <div class="glow-panel p-6 flex items-center justify-between relative overflow-hidden">
+            <div class="absolute -right-6 -top-6 opacity-5"><i class="fa-solid fa-bottle-water text-9xl"></i></div>
+            <div class="z-10">
+                <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-2">Fanta Laranja</h3>
+                <div class="text-4xl font-orbitron font-bold text-white" id="count-fanta-laranja">0</div>
             </div>
             <i class="fa-solid fa-bottle-water text-3xl text-orange-500 z-10"></i>
         </div>
@@ -76,10 +85,10 @@
         <div class="glow-panel p-6 flex items-center justify-between relative overflow-hidden">
             <div class="absolute -right-6 -top-6 opacity-5"><i class="fa-solid fa-bottle-water text-9xl"></i></div>
             <div class="z-10">
-                <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-2">Sprite</h3>
-                <div class="text-4xl font-orbitron font-bold text-white" id="count-sprite">0</div>
+                <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-2">Fanta Uva</h3>
+                <div class="text-4xl font-orbitron font-bold text-white" id="count-fanta-uva">0</div>
             </div>
-            <i class="fa-solid fa-bottle-water text-3xl text-green-500 z-10"></i>
+            <i class="fa-solid fa-bottle-water text-3xl text-purple-500 z-10"></i>
         </div>
 
         <div class="glow-panel p-6 flex items-center justify-between relative overflow-hidden border-red-500/30">
@@ -93,7 +102,7 @@
         </div>
 
         <!-- Gráfico em Tempo Real -->
-        <div class="glow-panel p-6 xl:col-span-3">
+        <div class="glow-panel p-6 xl:col-span-4">
             <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
                 <i class="fa-solid fa-chart-line text-cyan-500"></i> Fluxo de Processamento (Tempo Real)
             </h3>

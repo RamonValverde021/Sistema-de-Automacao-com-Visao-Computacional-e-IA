@@ -5,7 +5,7 @@ import random
 
 # Memória do sistema
 dados_esteira = {
-    "counts": {"coca": 0, "fanta": 0, "sprite": 0, "erro": 0},
+    "counts": {"coca": 0, "fanta": 0, "fanta_uva": 0, "sprite": 0, "erro": 0},
     "status": "Aguardando",
     "rate": 0,
     "last_item": None,
@@ -29,11 +29,12 @@ async def loop_visao_computacional():
         
         if is_processing:
             if random.random() > 0.4:
-                itens = ['Coca-Cola', 'Fanta', 'Sprite', 'Erro de Fabricação']
+                itens = ['Coca-Cola', 'Fanta', 'Fanta Uva', 'Sprite', 'Erro de Fabricação']
                 item = random.choice(itens)
                 
                 if item == 'Coca-Cola': dados_esteira["counts"]["coca"] += 1
                 elif item == 'Fanta': dados_esteira["counts"]["fanta"] += 1
+                elif item == 'Fanta Uva': dados_esteira["counts"]["fanta_uva"] += 1
                 elif item == 'Sprite': dados_esteira["counts"]["sprite"] += 1
                 else: dados_esteira["counts"]["erro"] += 1
                 
