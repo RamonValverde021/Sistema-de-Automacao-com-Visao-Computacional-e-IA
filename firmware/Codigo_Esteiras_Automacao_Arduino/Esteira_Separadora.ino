@@ -14,7 +14,7 @@ void _posicaoInicialEsteiraSeparadora() {
   digitalWrite(pin_Motor_Separadora_H, 1);
   digitalWrite(pin_Motor_Separadora_AH, 0);
   delay(75);
-  analogWrite(pin_Motor_Separadora_PWM, 150);
+  analogWrite(pin_Motor_Separadora_PWM, 150);  // 150
   while (btn_FimDeCurso == 0) {
     btn_FimDeCurso = digitalRead(pin_Chave_Fim_de_Curso_Separadora);
   }
@@ -23,8 +23,9 @@ void _posicaoInicialEsteiraSeparadora() {
 
   // Atualiza a coordena da esteira separadora para 0
   coordenadaAtual = 0;
-  delay(500);
-  // Leva a esteira para a outra extremidade
+}
+
+void _posicaoFinalEsteiraSeparadora() {
   _posicaoEsteiraSeparadora(limiteEsteiraSeparadora);
 }
 
@@ -87,7 +88,7 @@ void _posicaoEsteiraSeparadora(int novaCoordenada) {
   _paraMotor();
 
   contagemMovimentacao++;
-  if (contagemMovimentacao == 20) {  // 10
+  if (contagemMovimentacao == 4) {  // 10
     delay(500);
     contagemMovimentacao = 0;
     _posicaoInicialEsteiraSeparadora();
@@ -95,7 +96,7 @@ void _posicaoEsteiraSeparadora(int novaCoordenada) {
 }
 
 // Esta função roda em segundo plano toda vez que o encoder passa por um furo
-void trataEncoder() {
+void _trataEncoder() {
   contador += direcaoMotor;
 }
 
