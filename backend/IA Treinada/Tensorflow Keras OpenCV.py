@@ -24,12 +24,12 @@ class_names_path = os.path.join(base_path, "labels.txt")
 class_names = open(class_names_path, "r").readlines()
 
 # Liga a câmera do computador (O número '1' geralmente é uma webcam externa, '0' seria a câmera embutida)
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(1)
 
 # Define qual vai ser a largura da imagem gravada pela câmera (em pontinhos de luz, chamados pixels)
-cam_width = 320
+cam_width = 229 # 640 - 320 - 160     352 - 229
 # Define qual vai ser a altura da imagem gravada pela câmera
-cam_height = 240
+cam_height = 224 # 480 - 240 - 120    288 - 224
 # Aplica a largura configurada na câmera
 camera.set(cv2.CAP_PROP_FRAME_WIDTH, cam_width)
 # Aplica a altura configurada na câmera
