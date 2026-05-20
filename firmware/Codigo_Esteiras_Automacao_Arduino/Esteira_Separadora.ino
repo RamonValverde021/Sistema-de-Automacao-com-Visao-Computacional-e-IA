@@ -20,7 +20,6 @@ void _posicaoInicialEsteiraSeparadora() {
   }
   // Desliga o motor
   _paraMotor();
-
   // Atualiza a coordena da esteira separadora para 0
   coordenadaAtual = 0;
 }

@@ -1,0 +1,28 @@
+13  pin_Motor_Esteira_H 
+12  pin_Motor_Esteira_AH
+11~ pin_Motor_Separadora_H 
+10  pin_Motor_Separadora_AH
+9   pin_Servo_Cancela
+8   pin_Sensor_Limite_Esteira
+
+7   pin_Chave_Fim_de_Curso_Separadora
+6~  pin_Motor_Separadora_PWM
+5~  pin_Motor_Esteira_PWM 
+4   pin_Receptor_Lazer_D
+*3~ pin_Transmissor_Lazer
+*2  pin_Encolder_Motor_Separadora_D
+
+A0  pin_Encolder_Motor_Separadora_A
+A1  pin_Receptor_Lazer_A
+A2  
+A3  
+*A4 - Display
+*A5 - Display
+
+
+
+
+
+
+
+
