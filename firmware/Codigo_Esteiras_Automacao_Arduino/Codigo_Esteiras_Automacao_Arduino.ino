@@ -10,14 +10,12 @@
 #define pin_Motor_Esteira_AH 10
 #define pin_Servo_Cancela 9   // Branco - Cabo Preto
 #define pin_Sensor_Cancela 8  // Azul - Cabo Preto
-
 #define pin_Sensor_Limite_Esteira 7  // Laranja - Cabo Branco Fino _ Limite aonde a garrafinha chega antes de cair da esteira
 #define pin_Motor_Separadora_PWM 6
 #define pin_Motor_Esteira_PWM 5
 #define pin_Receptor_Lazer_D 4             // Amarelo - Cabo Branco Grosso _ LDR, leitura digital
 #define pin_Transmissor_Lazer 3            // Verde - Cabo Branco Grosso _ Diodo Lazer
 #define pin_Encolder_Motor_Separadora_D 2  // A1 - Amarelo
-
 // Portas Analogicas
 #define pin_Encolder_Motor_Separadora_A A0    // Laranja
 #define pin_Receptor_Lazer_A A1               // Laranja - Cabo Branco Grosso
