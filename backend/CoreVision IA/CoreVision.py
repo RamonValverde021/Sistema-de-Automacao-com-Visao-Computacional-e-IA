@@ -32,8 +32,8 @@ with open(class_names_path, "r", encoding="utf-8") as f:
 
 # Configurações da Câmera
 camera = cv2.VideoCapture(1)
-cam_width = 640 
-cam_height = 480 
+cam_width = 320 
+cam_height = 240 
 camera.set(cv2.CAP_PROP_FRAME_WIDTH, cam_width)
 camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_height)
 
@@ -115,8 +115,8 @@ while True:
     # Adiciona a legenda no canto superior esquerdo se o item foi validado
     if item_counted and current_label:
         # Coloca um fundo preto no texto para facilitar a leitura dependendo da iluminação
-        cv2.rectangle(image, (start_x, start_y - 25), (start_x + 224, start_y), roi_color, cv2.FILLED)
-        cv2.putText(image, f"{current_label} ({counters[current_label]})", (start_x + 5, start_y - 7),
+        cv2.rectangle(image, (start_x, start_y), (start_x + 224, start_y + 25), roi_color, cv2.FILLED)
+        cv2.putText(image, f"{current_label} ({counters[current_label]})", (start_x + 5, start_y + 18),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
     # Mostra a imagem na tela
