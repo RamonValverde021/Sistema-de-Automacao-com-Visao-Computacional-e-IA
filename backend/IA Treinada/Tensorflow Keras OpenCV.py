@@ -57,6 +57,7 @@ while True:
 
     # Desenha uma caixa azul na tela para o usuário ver exatamente onde a IA está olhando
     cv2.rectangle(image, (start_x, start_y), (end_x, end_y), (255, 0, 0), 2)
+    
 
     # Abre uma janela no computador e mostra a imagem da câmera com a caixa azul desenhada
     cv2.imshow("Webcam Image", image)
