@@ -1,35 +1,33 @@
 //==================== Inclusão de Bibliotecas =================//
 #include <LiquidCrystal_I2C.h>
+#include <ArduinoJson.h>
 #include <Servo.h>
+#include <EEPROM.h>
 
 //==================== PINOUT ====================//
-// Portas Digitais
+//===== Portas Digitais
 #define pin_Motor_Separadora_H 13
 #define pin_Motor_Separadora_AH 12
 #define pin_Motor_Esteira_H 11
 #define pin_Motor_Esteira_AH 10
-#define pin_Servo_Cancela 9   // Branco - Cabo Preto
-#define pin_Sensor_Cancela 8  // Azul - Cabo Preto
+#define pin_Servo_Cancela 9          // Branco - Cabo Preto
+#define pin_Sensor_Cancela 8         // Azul - Cabo Preto
 #define pin_Sensor_Limite_Esteira 7  // Laranja - Cabo Branco Fino _ Limite aonde a garrafinha chega antes de cair da esteira
 #define pin_Motor_Separadora_PWM 6
 #define pin_Motor_Esteira_PWM 5
 #define pin_Receptor_Lazer_D 4             // Amarelo - Cabo Branco Grosso _ LDR, leitura digital
 #define pin_Transmissor_Lazer 3            // Verde - Cabo Branco Grosso _ Diodo Lazer
 #define pin_Encolder_Motor_Separadora_D 2  // A1 - Amarelo
-// Portas Analogicas
+//===== Portas Analogicas
 #define pin_Encolder_Motor_Separadora_A A0    // Laranja
 #define pin_Receptor_Lazer_A A1               // Laranja - Cabo Branco Grosso
 #define pin_Chave_Fim_de_Curso_Separadora 16  // A2 - Chave fim de curso da esteira separadora
-
-// Variaveis Display 20x04 --------------------
-// Configure o endereço do LCD para 0x27 para um Display de 16 caracteres e 2 linhas.
-LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 //==================== VARIÁVEIS GLOBAIS ====================//
 const byte potenciaEstPrinc = 68;  // Potencia minima = 65
 const byte potenciaLazer = 10;
 
-//===== Variaveis Esteira Separadora
+//===== Variáveis Esteira Separadora
 const int limiteEsteiraSeparadora = 221;
 const byte potenciaEstSep = 225;  // 205 = Potencia maxima com precisão
 // Definimos a potência máxima e a potência de aproximação lenta
@@ -37,10 +35,21 @@ const int velocidadeMaxima = potenciaEstSep;
 const int velocidadeLenta = 125;  // 125 velocidade mínima pro motor não engasgar
 const int distanciaFreio = 15;    // 15 (limiteEsteiraSeparadora / 4) - 10
 
-// Variaveis Servo Cancela --------------------
+//===== Variáveis Servo Cancela
 Servo servoCancela;
 
-//==================== FLAGS ====================//
+//===== Variáveis de comunicação Bluetooth
+const unsigned int TAMANHO_MAX = 512;  // Define um limite de caracteres para evitar realocações constantes de memôria
+String buffer = "";
+int posicaoOrelhaDireita = 0;
+int posicaoOrelhaEsquerda = 0;
+String modo = "automatico";  // normal - automatico - apresentacao
+
+//===== Variáveis Display
+// Configure o endereço do LCD para 0x27 para um Display de 16 caracteres e 2 linhas.
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+//===== Flags
 const byte passo = 61;
 const byte posicaoFantaUva = 35;
 const byte posicaoFantaLaranja = posicaoFantaUva + (passo * 1);
@@ -57,6 +66,11 @@ void _trataEncoder();
 void _paraMotor();
 void _abreCancela();
 void _fechaCancela();
+
+//===== Funções de comunicação
+void _recebeComandos();
+void _processaComando(const String& json);
+bool _keyJSON(JsonVariantConst obj, String chave);
 
 //==================== CODIGO PRINCIPAL ====================//
 void setup() {
@@ -109,13 +123,19 @@ void setup() {
   Serial.println("-----------------------------> Automação Inicializada com Sucesso <-----------------------------");
   lcd.clear();
 */
+  Serial.println("\n\nComunicação pronta, aguardando comandos...");
+  // Envia um status ao servidor
+  String statusModo = "{\"Esetira\":\"Aguardando\"}";
+  Serial.println(statusModo);
+
   // Inicializa funções
   //_ligaEsteira();
-  _testesSeparadora();
+  //_testesSeparadora();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  _recebeComandos();
 }
 
 /*
