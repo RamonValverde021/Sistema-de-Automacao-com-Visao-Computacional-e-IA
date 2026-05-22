@@ -21,15 +21,30 @@
         <div class="flex items-center gap-4 mb-4 md:mb-0">
             <i class="fa-solid fa-microchip text-4xl text-glow-cyan"></i>
             <div>
+                <!--
                 <h1 class="text-2xl md:text-3xl font-bold tracking-wider text-white">SYS<span
                         class="text-glow-cyan">VISION</span> 4.0</h1>
+                -->
+                <h1 class="text-2xl md:text-3xl font-bold tracking-wider text-white">Core<span
+                        class="text-glow-cyan">Vision</span> 4.0</h1>
                 <p class="text-cyan-500/70 text-sm tracking-widest">MONITORAMENTO DE ESTEIRA AUTOMATIZADA</p>
             </div>
         </div>
-        <div class="flex items-center gap-3 glow-panel px-4 py-2">
-            <div id="connection-dot" class="w-3 h-3 rounded-full bg-green-500 status-pulse"></div>
-            <span id="connection-text" class="text-sm font-bold text-glow-green tracking-wider uppercase">Conectado ao
-                Python</span>
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+            <div class="flex items-center gap-3 glow-panel px-4 py-2">
+                <div id="connection-dot" class="w-3 h-3 rounded-full bg-red-500"></div>
+                <span id="connection-text" class="text-sm font-bold text-glow-red tracking-wider uppercase">SISTEMA OFFLINE</span>
+            </div>
+            <!-- Painel de Controle -->
+            <div id="control-panel" class="glow-panel px-3 py-1 flex items-center gap-1 rounded-md">
+                <button id="btn-ligar" title="Ligar Esteira" class="text-gray-400 hover:text-green-400 text-xl px-2 py-1 rounded transition-colors duration-300 disabled:text-gray-600 disabled:cursor-not-allowed" disabled><i class="fa-solid fa-play"></i></button>
+                <div class="w-px h-6 bg-cyan-500/20"></div>
+                <button id="btn-pausar" title="Pausar Processamento" class="text-gray-400 hover:text-yellow-400 text-xl px-2 py-1 rounded transition-colors duration-300 disabled:text-gray-600 disabled:cursor-not-allowed" disabled><i class="fa-solid fa-pause"></i></button>
+                <div class="w-px h-6 bg-cyan-500/20"></div>
+                <button id="btn-desligar" title="Desligar Esteira" class="text-gray-400 hover:text-red-400 text-xl px-2 py-1 rounded transition-colors duration-300 disabled:text-gray-600 disabled:cursor-not-allowed" disabled><i class="fa-solid fa-stop"></i></button>
+                <div class="w-px h-6 bg-cyan-500/20"></div>
+                <button id="btn-reiniciar" title="Reiniciar Sistema" class="text-gray-400 hover:text-cyan-400 text-xl px-2 py-1 rounded transition-colors duration-300 disabled:text-gray-600 disabled:cursor-not-allowed" disabled><i class="fa-solid fa-arrows-rotate"></i></button>
+            </div>
         </div>
     </header>
 
@@ -122,6 +137,30 @@
         </div>
 
     </main>
+
+    <!-- Seção de Comunicação -->
+    <footer class="mt-8">
+        <div class="glow-panel p-6 flex flex-col">
+            <h3 class="text-gray-400 text-sm uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-terminal text-cyan-500"></i> Console de Comunicação
+            </h3>
+            <!-- Log de Mensagens -->
+            <div id="console-log"
+                class="flex-grow overflow-y-auto space-y-3 pr-2 h-48 bg-black/30 p-3 rounded-md border border-cyan-500/20 mb-4 font-mono text-sm">
+                <!-- Mensagens serão injetadas aqui via JS -->
+            </div>
+            <!-- Input de Comando -->
+            <div class="flex gap-3">
+                <input type="text" id="console-input"
+                    class="flex-grow bg-gray-900/50 border border-gray-700 rounded-md px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                    placeholder="Aguardando conexão..." disabled>
+                <button id="console-send"
+                    class="bg-cyan-600/80 hover:bg-cyan-500 text-white font-bold py-2 px-5 rounded-md flex items-center gap-2 transition-all duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed" disabled>
+                    <i class="fa-solid fa-paper-plane"></i> Enviar
+                </button>
+            </div>
+        </div>
+    </footer>
 </body>
 
 </html>

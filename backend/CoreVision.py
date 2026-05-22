@@ -14,11 +14,11 @@ np.set_printoptions(suppress=True)
 base_path = os.path.dirname(__file__)
 
 # Carrega o modelo da Inteligência Artificial (IA)
-model_path = os.path.join(base_path, "keras_model.h5")
+model_path = os.path.join(base_path, "keras_model/keras_model.h5")
 model = load_model(model_path, compile=False)
 
 # Abre e lê o arquivo "labels.txt" e cria os contadores individuais
-class_names_path = os.path.join(base_path, "labels.txt")
+class_names_path = os.path.join(base_path, "keras_model/labels.txt")
 class_names = []
 counters = {}
 
@@ -31,7 +31,7 @@ with open(class_names_path, "r", encoding="utf-8") as f:
         counters[clean_name] = 0
 
 # Configurações da Câmera
-camera = cv2.VideoCapture(1)
+camera = cv2.VideoCapture(0) # 0 para WEbCam do Notebook, 1 para WebCam conectada
 cam_width = 320 
 cam_height = 240 
 camera.set(cv2.CAP_PROP_FRAME_WIDTH, cam_width)
