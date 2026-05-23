@@ -5,11 +5,46 @@ import random
 
 # Memória do sistema
 dados_esteira = {
-    "counts": {"coca": 0, "fanta": 0, "fanta_uva": 0, "sprite": 0, "erro": 0},
-    "status": "Aguardando",
-    "rate": 0,
-    "last_item": None,
-    "accuracy": 0.0
+    "id": "servidor",
+    "designacao": "dados_esteira",
+    "dados": {
+        "contagem_garrafas": {
+            "coca_cola": 0, 
+            "sprite": 0, 
+            "fanta_laranja": 0, 
+            "fanta_uva": 0, 
+            
+            "coca_cola_vazia":0,
+            "sprite_vazia":0,
+            "fanta_laranja_vazia":0,
+            "fanta_uva_vazia":0,
+            
+            "coca_cola_com_sprite":0,
+            "coca_cola_com_fanta_laranja":0,
+            "coca_cola_com_fanta_uva":0,
+            
+            "sprite_com_coca_cola":0,
+            "sprite_com_fanta_laranja":0,
+            "sprite_com_fanta_uva":0,
+
+            "fanta_com_coca_cola":0,
+            "fanta_com_sprite":0,
+
+            "erro": 0
+            },
+        "status": "Aguardando",
+        "taxa_deteccao": 0,
+        "ultimo_item": None,
+        "precisao": 0.0
+    }
+}
+
+# Resposta simulada
+resposta_simulada_IA = {
+    "id": "servidor",
+    "designacao": "console_de_comunicacao",
+    "comando": "resposta",
+    "dados": "Texto a ser enviado"
 }
 
 # Lista para guardar todos os painéis (navegadores) conectados
@@ -29,31 +64,35 @@ async def loop_visao_computacional():
         
         if is_processing:
             if random.random() > 0.4:
-                itens = ['Coca-Cola', 'Fanta', 'Fanta Uva', 'Sprite', 'Erro de Fabricação']
+                itens = ['Coca-Cola', 'Sprite', 'Fanta Laranja', 'Fanta Uva', 'Erro de Fabricação']
                 item = random.choice(itens)
                 
-                if item == 'Coca-Cola': dados_esteira["counts"]["coca"] += 1
-                elif item == 'Fanta': dados_esteira["counts"]["fanta"] += 1
-                elif item == 'Fanta Uva': dados_esteira["counts"]["fanta_uva"] += 1
-                elif item == 'Sprite': dados_esteira["counts"]["sprite"] += 1
-                else: dados_esteira["counts"]["erro"] += 1
+                if item == 'Coca-Cola': dados_esteira["dados"]["contagem_garrafas"]["coca_cola"] += 1
+                elif item == 'Sprite': dados_esteira["dados"]["contagem_garrafas"]["sprite"] += 1
+                elif item == 'Fanta Laranja': dados_esteira["dados"]["contagem_garrafas"]["fanta_laranja"] += 1
+                elif item == 'Fanta Uva': dados_esteira["dados"]["contagem_garrafas"]["fanta_uva"] += 1
                 
-                dados_esteira["last_item"] = item
-                dados_esteira["accuracy"] = round(random.uniform(0.85, 0.99), 2)
+                else: dados_esteira["dados"]["contagem_garrafas"]["erro"] += 1
+                
+                dados_esteira["dados"]["ultimo_item"] = item
+                dados_esteira["dados"]["precisao"] = round(random.uniform(0.85, 0.99), 2)
             else:
-                dados_esteira["last_item"] = None
+                dados_esteira["dados"]["ultimo_item"] = None
             
-            dados_esteira["status"] = "Processando"
-            dados_esteira["rate"] = random.randint(35, 45)
+            dados_esteira["dados"]["status"] = "Processando"
+            dados_esteira["dados"]["taxa_deteccao"] = random.randint(35, 45)
         else:
-            dados_esteira["status"] = "Parada"
-            dados_esteira["rate"] = 0
+            dados_esteira["dados"]["status"] = "Parada"
+            dados_esteira["dados"]["taxa_deteccao"] = 0
 
         # O PULO DO GATO: Assim que a visão processa, envia para todos os painéis abertos!
         if clientes_conectados:
             mensagem = json.dumps(dados_esteira)
             # Envia a mensagem para todos os clientes conectados simultaneamente
             await asyncio.gather(*[cliente.send(mensagem) for cliente in clientes_conectados])
+            
+            """mensagem_simulada = json.dumps(resposta_simulada_IA)
+            await asyncio.gather(*[cliente.send(mensagem_simulada) for cliente in clientes_conectados])"""
 
 # =====================================================================
 # 2. SERVIDOR WEBSOCKET

@@ -42,49 +42,64 @@ const logContainer = document.getElementById('log-container');
 
 // --- Função para Atualizar a Interface com o JSON do Python ---
 function updateDashboard(data) {
-    // Atualiza Contadores
-    document.getElementById('count-coca').innerText = data.counts.coca;
-    document.getElementById('count-fanta-laranja').innerText = data.counts.fanta;
-    if (document.getElementById('count-fanta-uva') && data.counts.fanta_uva !== undefined) { 
-        document.getElementById('count-fanta-uva').innerText = data.counts.fanta_uva; 
+    //  Verifica se a mensagem recebida é vinda do servidor e se são dados da esteira
+    if (data.id == "servidor") {
+        if (data.designacao == "dados_esteira") {
+            if (typeof data.dados.status !== 'undefined') {
+
+                // Atualiza Contadores
+                document.getElementById('count-coca').innerText = data.dados.contagem_garrafas.coca_cola;
+                document.getElementById('count-sprite').innerText = data.dados.contagem_garrafas.sprite;
+                document.getElementById('count-fanta-laranja').innerText = data.dados.contagem_garrafas.fanta_laranja;
+                if (document.getElementById('count-fanta-uva') && data.dados.contagem_garrafas.fanta_uva !== undefined) {
+                    document.getElementById('count-fanta-uva').innerText = data.dados.contagem_garrafas.fanta_uva;
+                }
+                document.getElementById('count-error').innerText = data.dados.contagem_garrafas.erro;
+
+                // Atualiza Taxa
+                document.getElementById('detection-rate').innerText = data.dados.taxa_deteccao;
+
+                // Atualiza Status da Esteira
+                const statusEl = document.getElementById('belt-status');
+                const gearIcon = document.getElementById('gear-icon');
+
+                statusEl.innerText = data.dados.status.toUpperCase();
+
+                // Lógica visual baseada no status
+                statusEl.className = 'text-2xl font-orbitron font-bold ';
+                gearIcon.className = 'fa-solid fa-cogs text-3xl ';
+
+                if (data.dados.status === 'Processando' || data.dados.status === 'Ligada') {
+                    statusEl.classList.add('text-glow-green');
+                    gearIcon.classList.add('text-glow-cyan', 'fa-spin'); // Faz a engrenagem girar
+                } else if (data.dados.status === 'Erro') {
+                    statusEl.classList.add('text-glow-red');
+                    gearIcon.classList.add('text-red-500');
+                } else {
+                    statusEl.classList.add('text-glow-orange');
+                    gearIcon.classList.add('text-gray-500');
+                }
+
+                // Atualiza Gráfico
+                const chartData = rateChart.data.datasets[0].data;
+                chartData.push(data.dados.taxa_deteccao);
+                chartData.shift(); // Remove o mais antigo
+                rateChart.update();
+
+                // Atualiza Log (se houver um novo item detectado)
+                if (data.dados.ultimo_item) {
+                    addLogEntry(data.dados.ultimo_item, data.dados.precisao);
+                }
+            } else {
+                console.log("WebSocket: Pacote de dados não reconhecido:", data);
+            }
+        } else if (data.designacao == "console_de_comunicacao") {
+            if (data.comando == "resposta") {
+                addMessageToConsole(data.dados, 'system');
+            }
+        }
     }
-    document.getElementById('count-sprite').innerText = data.counts.sprite;
-    document.getElementById('count-error').innerText = data.counts.erro;
-
-    // Atualiza Taxa
-    document.getElementById('detection-rate').innerText = data.rate;
-
-    // Atualiza Status da Esteira
-    const statusEl = document.getElementById('belt-status');
-    const gearIcon = document.getElementById('gear-icon');
-
-    statusEl.innerText = data.status.toUpperCase();
-
-    // Lógica visual baseada no status
-    statusEl.className = 'text-2xl font-orbitron font-bold ';
-    gearIcon.className = 'fa-solid fa-cogs text-3xl ';
-
-    if (data.status === 'Processando' || data.status === 'Ligada') {
-        statusEl.classList.add('text-glow-green');
-        gearIcon.classList.add('text-glow-cyan', 'fa-spin'); // Faz a engrenagem girar
-    } else if (data.status === 'Erro') {
-        statusEl.classList.add('text-glow-red');
-        gearIcon.classList.add('text-red-500');
-    } else {
-        statusEl.classList.add('text-glow-orange');
-        gearIcon.classList.add('text-gray-500');
-    }
-
-    // Atualiza Gráfico
-    const chartData = rateChart.data.datasets[0].data;
-    chartData.push(data.rate);
-    chartData.shift(); // Remove o mais antigo
-    rateChart.update();
-
-    // Atualiza Log (se houver um novo item detectado)
-    if (data.last_item) {
-        addLogEntry(data.last_item, data.accuracy);
-    }
+    return;
 }
 
 // --- Função para adicionar itens no Log ---
