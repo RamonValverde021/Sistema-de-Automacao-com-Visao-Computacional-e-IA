@@ -1,11 +1,13 @@
 void _recebeComandos() {
   static String comando = "";
-  comando = Serial.readStringUntil('\n');  // Le novo comando que chegar na Serial
-  if (!comando.length() == 0) {            // Se o comando não estiver vazio
-    comando.trim();
-    Serial.println(comando);  // Imprime o comando
-    _processaComando(comando);
-    comando = "";  // Limpa para a próxima mensagem
+  if (Serial.available() > 0) {
+    comando = Serial.readStringUntil('\n');  // Le novo comando que chegar na Serial
+    if (!comando.length() == 0) {            // Se o comando não estiver vazio
+      comando.trim();
+      Serial.println(comando);  // Imprime o comando
+      _processaComando(comando);
+      comando = "";  // Limpa para a próxima mensagem
+    }
   }
 }
 
@@ -40,8 +42,6 @@ void _processaComando(const String& json) {
         }
       }
     }
-    
-
   }
 }
 

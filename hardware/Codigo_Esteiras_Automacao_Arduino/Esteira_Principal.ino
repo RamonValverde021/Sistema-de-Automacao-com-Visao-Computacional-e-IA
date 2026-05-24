@@ -4,6 +4,16 @@ void _ligaEsteira() {
   digitalWrite(pin_Motor_Esteira_AH, 1);
 }
 
+void _paraEsteira() {
+  analogWrite(pin_Motor_Esteira_PWM, 255);
+  digitalWrite(pin_Motor_Esteira_H, 1);
+  digitalWrite(pin_Motor_Esteira_AH, 1);
+  delay(150);
+  analogWrite(pin_Motor_Esteira_PWM, 0);
+  digitalWrite(pin_Motor_Esteira_H, 0);
+  digitalWrite(pin_Motor_Esteira_AH, 0);
+}
+
 void _desligaEsteira() {
   analogWrite(pin_Motor_Esteira_PWM, 0);
   digitalWrite(pin_Motor_Esteira_H, 0);

@@ -22,8 +22,8 @@
 #define pin_Chave_Fim_de_Curso_Separadora 16  // A2 - Chave fim de curso da esteira separadora
 
 //==================== VARIÁVEIS GLOBAIS ====================//
-const byte potenciaEstPrinc = 85;  // Potencia minima = 65
-const byte potenciaLazer = 10;
+const byte potenciaEstPrinc = 90;  // 85 Potencia minima = 65
+const byte potenciaLazer = 175;
 
 //===== Variáveis Esteira Separadora
 const int limiteEsteiraSeparadora = 221;
@@ -63,6 +63,7 @@ void _paraMotor();
 //===== Funções Esteira Principal
 void _ligaEsteira();
 void _desligaEsteira();
+void _paraEsteira();
 void _liberaGarrafa();
 void _abreCancela();
 void _fechaCancela();
@@ -98,6 +99,7 @@ void setup() {
   digitalWrite(pin_Motor_Esteira_H, LOW);
   digitalWrite(pin_Motor_Esteira_AH, LOW);
   analogWrite(pin_Transmissor_Lazer, potenciaLazer);
+   //digitalWrite(pin_Transmissor_Lazer, LOW);
   // Configura a interrupção no pino para detectar a subida (RISING) do sinal
   attachInterrupt(digitalPinToInterrupt(pin_Encolder_Motor_Separadora_D), _contaEncoder, RISING);
   servoCancela.attach(pin_Servo_Cancela);
@@ -121,15 +123,13 @@ void setup() {
 }
 
 void loop() {
-  //_recebeComandos();
+  _recebeComandos();
 
   if (okLiberaGarrafa) {
     _liberaGarrafa();
     okLiberaGarrafa = false;
   }
-
-  sensorLimiteEsteira = digitalRead(pin_Sensor_Limite_Esteira);
-  Serial.println(sensorLimiteEsteira);
+  sensorLimiteEsteira = digitalRead(pin_Sensor_Limite_Esteira); 
   if (sensorLimiteEsteira == 1) {
     delay(100);  //Espera 1s para cair a garrafa
     okLiberaGarrafa = true;
