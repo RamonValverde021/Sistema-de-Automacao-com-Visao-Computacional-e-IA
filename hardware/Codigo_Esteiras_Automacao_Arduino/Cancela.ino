@@ -1,4 +1,4 @@
-int atraso = 5;
+int atraso = 8; // 5
 void _abreCancela() {
   for (int c = 180; c >= 0; c--) {  // Vai de 180 graus para 0 graus em incrementos de 1 grau
     servoCancela.write(c);          // Diga ao servo para ir para a posição na variável 'c'.

@@ -95,7 +95,7 @@ void _posicaoEsteiraSeparadora(int novaCoordenada) {
 }
 
 // Esta função roda em segundo plano toda vez que o encoder passa por um furo
-void _trataEncoder() {
+void _contaEncoder() {
   contador += direcaoMotor;
 }
 

@@ -1,8 +1,6 @@
 //==================== Inclusão de Bibliotecas =================//
-#include <LiquidCrystal_I2C.h>
 #include <ArduinoJson.h>
 #include <Servo.h>
-#include <EEPROM.h>
 
 //==================== PINOUT ====================//
 //===== Portas Digitais
@@ -24,7 +22,7 @@
 #define pin_Chave_Fim_de_Curso_Separadora 16  // A2 - Chave fim de curso da esteira separadora
 
 //==================== VARIÁVEIS GLOBAIS ====================//
-const byte potenciaEstPrinc = 68;  // Potencia minima = 65
+const byte potenciaEstPrinc = 85;  // Potencia minima = 65
 const byte potenciaLazer = 10;
 
 //===== Variáveis Esteira Separadora
@@ -35,6 +33,9 @@ const int velocidadeMaxima = potenciaEstSep;
 const int velocidadeLenta = 125;  // 125 velocidade mínima pro motor não engasgar
 const int distanciaFreio = 15;    // 15 (limiteEsteiraSeparadora / 4) - 10
 
+//===== Variáveis Esteira Principal
+int sensorLimiteEsteira = 0;
+
 //===== Variáveis Servo Cancela
 Servo servoCancela;
 
@@ -42,25 +43,27 @@ Servo servoCancela;
 bool conectado = false;
 const unsigned int TAMANHO_MAX = 512;  // Define um limite de caracteres para evitar realocações constantes de memôria
 
-//===== Variáveis Display
-// Configure o endereço do LCD para 0x27 para um Display de 16 caracteres e 2 linhas.
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-
 //===== Flags
 const byte passo = 61;
 const byte posicaoFantaUva = 35;
 const byte posicaoFantaLaranja = posicaoFantaUva + (passo * 1);
 const byte posicaoSprite = posicaoFantaUva + (passo * 2);
 const byte posicaoCocaCola = posicaoFantaUva + (passo * 3);
+bool okLiberaGarrafa = true;
+bool garrafaTriada = false;
 
 //==================== PROTOTIPAÇÃO DE FUNÇÕES ====================//
-void _ligaEsteira();
-void _desligaEsteira();
+//===== Funções Esteira Separadora
 void _posicaoInicialEsteiraSeparadora();
 void _posicaoFinalEsteiraSeparadora();
 void _posicaoEsteiraSeparadora(int coordenada);
-void _trataEncoder();
+void _contaEncoder();
 void _paraMotor();
+
+//===== Funções Esteira Principal
+void _ligaEsteira();
+void _desligaEsteira();
+void _liberaGarrafa();
 void _abreCancela();
 void _fechaCancela();
 
@@ -96,52 +99,42 @@ void setup() {
   digitalWrite(pin_Motor_Esteira_AH, LOW);
   analogWrite(pin_Transmissor_Lazer, potenciaLazer);
   // Configura a interrupção no pino para detectar a subida (RISING) do sinal
-  attachInterrupt(digitalPinToInterrupt(pin_Encolder_Motor_Separadora_D), _trataEncoder, RISING);
+  attachInterrupt(digitalPinToInterrupt(pin_Encolder_Motor_Separadora_D), _contaEncoder, RISING);
   servoCancela.attach(pin_Servo_Cancela);
-  //_abreCancela();
+  // Posicionando esteira para inciar operações
+  _fechaCancela();  // Garante que a cencela está fechada
+  _ligaEsteira();   // Ativa a esteira
+  delay(2000);      // Espera a esteira normalizar a posição das garrafinhas
 
   /*
-  // Inicia o display
-  lcd.begin();      // Inicializa o LCD
-  lcd.backlight();  // Acenda a luz de fundo
-  lcd.noDisplay();
-  delay(100);
-  lcd.clear();
-  lcd.display();
-  delay(100);
-
   // Inicializando Sistema
   Serial.println("   INICIANDO AUTOMACAO  ");
   Serial.println("       VISION BELT      ");
-  lcd.setCursor(1, 0);  // Coluna 0 Linha 0
-  lcd.print("INICIANDO automacao");
-  lcd.setCursor(2, 1);  // Coluna 4 Linha 1
-  lcd.print("VISION BELT");
   delay(500);  // 5000
   Serial.println("-----------------------------> Automação Inicializada com Sucesso <-----------------------------");
-  lcd.clear();
 */
-  // Executa o Handshake antes de iniciar o loop principal
-  _realizarHandshake();
-
-  
-
   // Inicializa funções
+  //_realizarHandshake(); // Executa o Handshake antes de iniciar o loop principal
   //_ligaEsteira();
+
   //_testesSeparadora();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  _recebeComandos();
-}
+  //_recebeComandos();
 
-/*
-lcd.setCursor(0, 0);  // Imprime o texto na Coluna 0 e Linha 0
-lcd.print("Ola");
-lcd.setCursor(0, 1);  // Imprime o texto na Coluna 0 e Linha 1
-lcd.print("Mundo");
-*/
+  if (okLiberaGarrafa) {
+    _liberaGarrafa();
+    okLiberaGarrafa = false;
+  }
+
+  sensorLimiteEsteira = digitalRead(pin_Sensor_Limite_Esteira);
+  Serial.println(sensorLimiteEsteira);
+  if (sensorLimiteEsteira == 1) {
+    delay(100);  //Espera 1s para cair a garrafa
+    okLiberaGarrafa = true;
+  }
+}
 
 
 void _testesSeparadora() {
