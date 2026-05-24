@@ -41,7 +41,7 @@ function addMessageToConsole(message, sender) {
 
     messageElement.innerHTML = `
                 <div class="flex justify-between items-start">
-                    <p class="${messageColor} break-all">${icon} ${senderPrefix} ${message}</p>
+                    <pre class="${messageColor} break-all">${icon} ${senderPrefix} ${message}</pre>
                     <span class="text-xs text-gray-500 flex-shrink-0 ml-4">${time}</span>
                 </div>
             `;
@@ -55,6 +55,7 @@ function addMessageToConsole(message, sender) {
  * @param {string} command - O nome do comando.
  * @param {any} [value=null] - Um valor opcional para o comando.
  */
+// Função para enviar comandos JSON para o Python
 function sendCommand(command, designation) {
     if (socket.readyState === WebSocket.OPEN) {
         if (designation == "controle") {
@@ -68,8 +69,7 @@ function sendCommand(command, designation) {
             const message = {
                 id: "dashboard",
                 designacao: "console_de_comunicacao",
-                comando: "enviar",
-                dados: command
+                requisicao: command
             };
             socket.send(JSON.stringify(message));
         }
@@ -157,11 +157,11 @@ document.getElementById('btn-desligar').addEventListener('click', () => {
     addMessageToConsole("Comando 'Desligar Esteira' enviado.", 'user');
 });
 document.getElementById('btn-pausar').addEventListener('click', () => {
-    sendCommand('pausar_esteira', 'controle');
+    sendCommand('pausar_processamento', 'controle');
     addMessageToConsole("Comando 'Pausar Processamento' enviado.", 'user');
 });
 document.getElementById('btn-reiniciar').addEventListener('click', () => {
-    sendCommand('reiniciar_esteira', 'controle');
+    sendCommand('reiniciar_sistema', 'controle');
     addMessageToConsole("Comando 'Reiniciar Sistema' enviado.", 'user');
 });
 

@@ -1,0 +1,44 @@
+# Arquivos de configuração e segredos
+backend/.env
+backend/tempCodeRunnerFile.py
+
+# Cache e arquivos compilados do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Pastas de ambiente virtual
+venv/
+.venv/
+
+# ⚠️ Dependências
+node_modules/
+
+# ⚙️ Build
+dist/
+build/
+
+# 🗂 Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 🧪 Test coverage
+coverage/
+
+# 📝 Ambiente
+.env
+.env.local
+.env.production
+.env.development
+
+# 🔥 Sistema operacional
+.DS_Store
+Thumbs.db
+
+# 🚀 IDEs e editores
+.vscode/
+.idea/
+*.swp

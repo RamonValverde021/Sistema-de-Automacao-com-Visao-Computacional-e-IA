@@ -1,4 +1,5 @@
-//================= Mensagens Dashboard =================//
+//================= Mensagens do Dashboard para o Servidor Python =================//
+//=== Controle
 {
     "id":"dashboard",
     "designacao":"controle",
@@ -8,31 +9,30 @@
 {
     "id":"dashboard",
     "designacao":"controle",
-    "comando":"pausar_esteira"
-}
-
-{
-    "id":"dashboard",
-    "designacao":"controle",
-    "comando":"reiniciar_esteira"
-}
-
-{
-    "id":"dashboard",
-    "designacao":"controle",
     "comando":"desligar_esteira"
+}
+
+{
+    "id":"dashboard",
+    "designacao":"controle",
+    "comando":"pausar_processamento"
+}
+
+{
+    "id":"dashboard",
+    "designacao":"controle",
+    "comando":"reiniciar_sistema"
 }
 
 //=== CLI
 {
     "id": "dashboard",
     "designacao": "console_de_comunicacao",
-    "comando": "enviar,
-    "dados": "Texto a ser enviado"
+    "requisicao": "Texto a ser enviado"
 }
 
 
-//================= Mensagens Seevidor =================//
+//================= Mensagens do Servidor Python para o Dashboard =================//
 //===  dados_esteira 
 {
     "id": "servidor",
@@ -69,11 +69,75 @@
     }
 }
 
-
 //=== CLI
 {
     "id": "servidor",
     "designacao": "console_de_comunicacao",
-    "comando": "resposta",
-    "dados": "Texto a ser enviado"
+    "resposta":"Texto a ser enviado"
 }
+
+
+//================= Mensagens do Servidor Python para o Arduino =================//
+//=== Garrfas
+{
+    "id": "servidor",
+    "designacao": "deteccao_de_item",
+    "item": "Coca_Cola"
+}
+
+{
+    "id": "servidor",
+    "designacao": "deteccao_de_item",
+    "item": "Sprite"
+}
+
+{
+    "id": "servidor",
+    "designacao": "deteccao_de_item",
+    "item": "Fanta_Laranja"
+}
+
+{
+    "id": "servidor",
+    "designacao": "deteccao_de_item",
+    "item": "Fanta_Uva"
+}
+
+// Como a esteira não tem tela ou interface, 
+// não preciso informar como são exatamente as garrafas erradas
+//=== Garrafas Vazias
+{
+    "id": "servidor",
+    "designacao": "deteccao_de_item",
+    "item": "Envase_Vazio"
+}
+
+//=== Erros de fabricação
+{
+    "id": "servidor",
+    "designacao": "deteccao_de_item",
+    "item": "Envase_Incorreto"
+}
+
+//=== Controle
+{
+    "id":"servidor",
+    "designacao":"controle",
+    "comando":"ligar_esteira"
+}
+
+{
+    "id":"servidor",
+    "designacao":"controle",
+    "comando":"pausar_processamento"
+}
+
+{
+    "id":"servidor",
+    "designacao":"controle",
+    "comando":"reiniciar_sistema"
+}
+
+
+//================= Mensagens do Arduino para o Servidor Python =================//
+

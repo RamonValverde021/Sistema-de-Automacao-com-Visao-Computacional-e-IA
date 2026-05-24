@@ -11,3 +11,17 @@ pip install opencv-python
 
 Numpy
 pip install numpy
+
+pip install pyserial
+
+
+# instala o SDK oficial do Google Gemini
+pip install google-generativeai
+
+# instala o pandas e openpyxl para ler planilhas
+pip install pandas openpyxl
+
+pip install python-dotenv
+
+# escolhe o modelo (gemini-1.5-flash e rapido e gratuito)
+modelo = genai.GenerativeModel('gemini-1.5-flash')

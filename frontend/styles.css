@@ -90,3 +90,9 @@ h3,
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 240, 255, 0.6);
 }
+
+/* Rodapé */
+.p_footer {
+    font-size: 1rem;
+    font-weight: 600;
+}

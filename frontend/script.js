@@ -94,9 +94,8 @@ function updateDashboard(data) {
                 console.log("WebSocket: Pacote de dados não reconhecido:", data);
             }
         } else if (data.designacao == "console_de_comunicacao") {
-            if (data.comando == "resposta") {
-                addMessageToConsole(data.dados, 'system');
-            }
+            // Recebe uma mensagem do Python e printa no console do dashboard
+            addMessageToConsole(data.resposta, 'system');
         }
     }
     return;
