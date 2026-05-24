@@ -138,6 +138,24 @@
     "comando":"reiniciar_sistema"
 }
 
+//=== Conexão
+{
+    "id":"servidor",
+    "conexao":"ouvindo"
+}
+
+{"id":"servidor","conexao":"ouvindo"}
 
 //================= Mensagens do Arduino para o Servidor Python =================//
+{
+    "id":"arduino",
+    "conexao":"aguardando"
+}
 
+{
+    "id":"arduino",
+    "conexao":"estabelecida"
+}
+
+
+{"id":"arduino","conexao":"aguardando"}

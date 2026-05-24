@@ -8,7 +8,7 @@ import time
 # COM9 USB arduino UNO
 # COM11 para Bluetooth HC-06
 # !IMPORTANTE! Não abra o monitor serial quando for rodar o código, No Windows, dois programas não podem controlar a mesma porta serial simultaneamente.
-PORTA_SERIAL = 'COM11' 
+PORTA_SERIAL = 'COM9' 
 BAUD_RATE = 38400
 
 def conectar_arduino():
@@ -22,21 +22,33 @@ def conectar_arduino():
         print("Aguardando sinal PING do Arduino...")
         while True:
             if arduino.in_waiting > 0:
-                linha = arduino.readline().decode('utf-8').strip()
-                
-                if linha == "PING":
-                    print("Arduino detectado! Enviando PONG...")
-                    arduino.write("PONG\n".encode('utf-8'))
-                    
-                # Aguarda a confirmação em JSON do Arduino
-                elif linha.startswith("{"):
+                resposta = arduino.readline().decode('utf-8').strip()
+        
+                if resposta.startswith("{"):
                     try:
-                        dados = json.loads(linha)
-                        if dados.get("conexao") == "estabelecida":
+                        dados = json.loads(resposta)
+                        # Escutando sinais de mensagem do Arduino
+                        if dados.get("id") == "arduino" and dados.get("conexao") == "aguardando":
+                            print("Arduino detectado! Enviando resposta...")
+                            # Mensagem para enviar ao Arduino
+                            mensagem_resposta = {
+                                "id": "servidor",
+                                "conexao":"ouvindo"
+                            }
+                            # Transforma dicionário Python em String JSON e adiciona \n no final
+                            mensagem_json = json.dumps(mensagem_resposta) + "\n"
+                            arduino.write(mensagem_json.encode('utf-8'))
+                            print(f"Enviado para Arduino: {mensagem_resposta}")
+                            # Pequena pausa para o Arduino processar
+                            time.sleep(0.5)
+                            
+                        # Aguarda a confirmação em JSON do Arduino
+                        elif dados.get("id") == "arduino" and dados.get("conexao") == "estabelecida":
                             print("Comunicação bidirecional JSON ativa!\n")
-                            return arduino
+                        return arduino
                     except json.JSONDecodeError:
                         pass
+
     except Exception as e:
         print(f"Erro ao conectar: {e}")
         return None
@@ -44,7 +56,7 @@ def conectar_arduino():
 def loop_comunicacao(arduino):
     try:
         contador = 0
-        while True:
+        """while True:
             contador += 1
             # Alterna o LED do Arduino baseado no contador (par = liga, ímpar = desliga)
             estado_led = 1 if contador % 2 == 0 else 0
@@ -76,7 +88,7 @@ def loop_comunicacao(arduino):
                 except json.JSONDecodeError:
                     print(f"Erro ao decodificar resposta: {resposta_bruta}")
                     
-            time.sleep(1.5) # Intervalo entre os envios do loop
+            time.sleep(1.5) # Intervalo entre os envios do loop"""
             
     except KeyboardInterrupt:
         print("\nFinalizando comunicação...")

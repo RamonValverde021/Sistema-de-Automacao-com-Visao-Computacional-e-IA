@@ -38,12 +38,9 @@ const int distanciaFreio = 15;    // 15 (limiteEsteiraSeparadora / 4) - 10
 //===== Variáveis Servo Cancela
 Servo servoCancela;
 
-//===== Variáveis de comunicação Bluetooth
+//===== Variáveis de comunicação
+bool conectado = false;
 const unsigned int TAMANHO_MAX = 512;  // Define um limite de caracteres para evitar realocações constantes de memôria
-String buffer = "";
-int posicaoOrelhaDireita = 0;
-int posicaoOrelhaEsquerda = 0;
-String modo = "automatico";  // normal - automatico - apresentacao
 
 //===== Variáveis Display
 // Configure o endereço do LCD para 0x27 para um Display de 16 caracteres e 2 linhas.
@@ -71,6 +68,7 @@ void _fechaCancela();
 void _recebeComandos();
 void _processaComando(const String& json);
 bool _keyJSON(JsonVariantConst obj, String chave);
+void _realizarHandshake();
 
 //==================== CODIGO PRINCIPAL ====================//
 void setup() {
@@ -123,10 +121,10 @@ void setup() {
   Serial.println("-----------------------------> Automação Inicializada com Sucesso <-----------------------------");
   lcd.clear();
 */
-  Serial.println("\n\nComunicação pronta, aguardando comandos...");
-  // Envia um status ao servidor
-  String statusModo = "{\"Esetira\":\"Aguardando\"}";
-  Serial.println(statusModo);
+  // Executa o Handshake antes de iniciar o loop principal
+  _realizarHandshake();
+
+  
 
   // Inicializa funções
   //_ligaEsteira();

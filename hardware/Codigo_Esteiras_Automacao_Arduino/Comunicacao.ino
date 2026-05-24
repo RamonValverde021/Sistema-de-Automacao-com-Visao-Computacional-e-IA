@@ -22,68 +22,26 @@ void _processaComando(const String& json) {
     serializeJsonPretty(doc, Serial);
     Serial.println();
 
-    /*
-    if (keyJSON(doc.as<JsonObject>(), "orelha_direita")) {  // Se existe a key "orelha_direita" e não estiver vaiza no json
-      posicaoOrelhaDireita = doc["orelha_direita"];         // Pega o valor de "orelha_direita"
-      if (posicaoOrelhaDireita >= 0) {
-        movimentaOrelhas("direito", posicaoOrelhaDireita);
+    // Tratamento para afirmar comunicação com o Servidor Python
+    if (_keyJSON(doc.as<JsonObject>(), "id")) {           // Se existe a key "id" e não estiver vaiza no json
+      String id = doc["id"];                              // Pega o valor de "id"
+      if (id == "servidor") {                             // Se o "id" for igual a "servidor"
+        if (_keyJSON(doc.as<JsonObject>(), "conexao")) {  // Se existe a key "conexao" e não estiver vaiza no json
+          String conexao = doc["conexao"];                // Pega o valor de "conexao"
+          if (conexao == "ouvindo") {                     // Se a "conexao" for igual a "ouvindo"
+            conectado = true;                             // Handshake bem-sucedido!
+            // Envia uma confirmação em JSON
+            StaticJsonDocument<100> docConfirma;
+            docConfirma["id"] = "arduino";
+            docConfirma["conexao"] = "estabelecida";
+            serializeJson(docConfirma, Serial);
+            Serial.println();
+          }
+        }
       }
     }
+    
 
-    if (keyJSON(doc.as<JsonObject>(), "orelha_esquerda")) {  // Se existe a key "orelha_esquerda" e não estiver vaiza no json
-      posicaoOrelhaEsquerda = doc["orelha_esquerda"];        // Pega o valor de "orelha_esquerda"
-      if (posicaoOrelhaEsquerda >= 0) {
-        movimentaOrelhas("esquerdo", posicaoOrelhaEsquerda);
-      }
-    }
-
-    if (keyJSON(doc.as<JsonObject>(), "cauda")) {  // Se existe a key "orelha_esquerda" e não estiver vaiza no json
-      String cauda = doc["cauda"];                 // Pega o valor de "orelha_esquerda"
-      if (cauda == "cima") {
-        caudaEmpina();
-      } else if (cauda == "direita") {
-        caudaMoveDireita();
-      } else if (cauda == "esquerda") {
-        caudaMoveEsquerda();
-      } else if (cauda == "baixo") {
-        caudaDesce();
-      }
-    }
-
-
-    if (keyJSON(doc.as<JsonObject>(), "modo_operacao")) {  // Se existe a key "modo_operacao" e não estiver vaiza no json
-      String modoOperacao = doc["modo_operacao"];          // Pega o valor de "modo_operacao"
-      if (modoOperacao == "automatico") {                  // Se o valor da chave for "automatico"
-        EEPROM.update(addrModo, 2);                        // Grava na memoria o novo modo de operação
-        modo = "automatico";                               // Muda a variavel global de modo de operação para "automatico"
-        modoAutomatico();                                  // Inicia a função de modo automatico
-      } else if (modoOperacao == "apresentacao") {         // Se o valor da chave for apresentacao
-        EEPROM.update(addrModo, 3);                        // Grava na memoria o novo modo de operação
-        modo = "apresentacao";                             // Muda a variavel global de modo de operação para "apresentacao"
-        modoApresentacao();                                // Inicia a função de modo apresentacao
-      } else {                                             // Se o valor da chave não for "automatico" e nem "apresentacao" volta para "normal"
-        EEPROM.update(addrModo, 1);                        // Grava na memoria o novo modo de operação
-        modo = "normal";                                   // Muda a variavel global de modo de operação para "normal"
-      }
-    }
-
-    if (keyJSON(doc.as<JsonObject>(), "intervalo_automatico")) {  // Se existe a key "intervalo_automatico" e não estiver vaiza no json
-      int valor = doc["intervalo_automatico"];                    // Pega o valor de "intervalo_automatico"
-      if (valor > 0 && valor <= 60) {                             // Se o valor do intervalo for maior que 0 e menor igual a 60
-        intervaloAutomatico = valor;                              // O intervalo de ação do modo automatico será igual ao valor
-        intervaloMs = intervaloAutomatico * 60000UL;              // minutos → ms
-        EEPROM.update(addrIntervalo, intervaloAutomatico);        // Grava na memoria o novo valor de intervalo
-      }
-    }
-
-    if (keyJSON(doc.as<JsonObject>(), "status")) {  // Se existe a key "modo_operacao" e não estiver vaiza no json
-      String status = doc["status"];                // Pega o valor de "modo_operacao"
-      if (status == "conectado") {
-        String statusModo = "{\"modo\":\"" + modo + "\",\"intervalo\":" + intervaloAutomatico + "}";
-        Bluetooth.println(statusModo);
-      }
-    }
-    */
   }
 }
 
@@ -111,7 +69,16 @@ bool _keyJSON(JsonVariantConst obj, String chave) {
   return true;  // Para todos os outros tipos de valor (número, booleano, etc.), considera válido
 }
 
-
+void _realizarHandshake() {
+  Serial.println("\n\nComunicação pronta, aguardando comandos...\n");
+  while (!conectado) {
+    // Envia um status ao servidor
+    String statusModo = "{\"id\":\"arduino\",\"conexao\":\"aguardando\"}";
+    Serial.println(statusModo);  // Avisa o Python que está pronto
+    _recebeComandos();
+    delay(1000);  // Aguarda antes de tentar o PING novamente
+  }
+}
 
 /*
 ----- Sobre void recebeComandos(); -----

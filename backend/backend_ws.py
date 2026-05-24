@@ -55,13 +55,6 @@ if not api_key:
 # Substitua pela sua chave de API ou configure-a como variável de ambiente
 client = genai.Client(api_key=api_key)
 
-# Resposta simulada
-resposta_simulada_IA = {
-    "id": "servidor",
-    "designacao": "console_de_comunicacao",
-    "resposta": "Texto a ser enviado"
-}
-
 # Lista para guardar todos os painéis (navegadores) conectados
 clientes_conectados = set()
 
