@@ -50,14 +50,12 @@ void setup() {
   cotovelo.attach(pinCotovelo);
   rotacao.attach(pinRotacao);
   pulso.attach(pinPulso);
-
-  _posicaoInicial();
-  /*base.write(90);
+  base.write(180);
   cotovelo.write(30);
   ombro.write(170);
   rotacao.write(5);
   pulso.write(93);
-  _Servos('G', 1);*/
+  _Servos('G', 1);
   delay(2000);
 }
 
@@ -66,7 +64,7 @@ void loop() {
   //_Rotina_02();
 
   _Rotina_03();
-  _Rotina_04();
+  //_Rotina_04();
 
   //Descansa os servos
   base.detach();

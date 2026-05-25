@@ -58,7 +58,7 @@ void setup() {
   cotovelo.attach(pinCotovelo);
   rotacao.attach(pinRotacao);
   pulso.attach(pinPulso);
-  base.write(90);
+  base.write(180);
   cotovelo.write(30);
   ombro.write(170);
   rotacao.write(5);

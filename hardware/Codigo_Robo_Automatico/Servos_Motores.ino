@@ -97,6 +97,8 @@ void _Servos(char servo, int posicao) {
       digitalWrite(pinGarraA, LOW);
       digitalWrite(pinGarraF, HIGH);
       delay(delay_Garra);
+      digitalWrite(pinGarraA, LOW);
+      digitalWrite(pinGarraF, LOW);
     } else {
       // Fecha a Garra
       digitalWrite(pinGarraA, HIGH);

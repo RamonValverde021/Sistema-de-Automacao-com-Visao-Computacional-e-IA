@@ -12,7 +12,7 @@ void _posicaoInicial() {
   digitalWrite(luz, LOW);
 }
 
-int pausas2 = 200;
+int pausas2 = 500;
 // Rotina 01
 void _Rotina_01() {
   // Pegar a garrafa na esteira
@@ -87,32 +87,38 @@ void _Rotina_02() {
 
 void _Rotina_03() {
   // Pegar a garrafa na esteira
-  _Servos('G', 0);
   base.write(180);
   delay(pausas2);
 
-  ombro.write(90);
-  cotovelo.write(45);
+  _Servos('G', 0);
+  cotovelo.write(50);
+  delay(pausas2);
+
   pulso.write(70);
   delay(pausas2);
 
+  ombro.write(95);
+  delay(pausas2);
+
   _Servos('G', 1);
+  delay(pausas2);
 
   // Recolher o braço com a garrafa
   cotovelo.write(10);
   delay(pausas2);
 
   ombro.write(180);
-  cotovelo.write(20);
-  pulso.write(90);
   delay(pausas2);
-
-  base.write(90);
+  cotovelo.write(20);
+  delay(pausas2);
+  pulso.write(90);
   delay(pausas2);
 
   // Leva a garrfa até o descarte liquido
   base.write(75);
+  delay(pausas2);
   ombro.write(120);
+  delay(pausas2);
   cotovelo.write(40);
   delay(pausas2);
 
@@ -120,10 +126,13 @@ void _Rotina_03() {
   delay(2000);
 
   rotacao.write(5);
+  delay(pausas2);
   base.write(105);
   delay(pausas2);
 
   // Leva a garrfa até o descarte Material
+  cotovelo.write(20);
+  delay(pausas2);
   ombro.write(60);
   delay(pausas2);
 
@@ -131,6 +140,7 @@ void _Rotina_03() {
   delay(pausas2);
 
   _Servos('G', 1);
+  delay(pausas2);
 
   // Posição Inicial
   _posicaoInicial();
@@ -138,31 +148,38 @@ void _Rotina_03() {
 
 void _Rotina_04() {
   // Pegar a garrafa na esteira
-  _Servos('G', 0);
   base.write(180);
   delay(pausas2);
 
-  ombro.write(90);
-  cotovelo.write(45);
+  _Servos('G', 0);
+  cotovelo.write(50);
+  delay(pausas2);
+
   pulso.write(70);
   delay(pausas2);
 
+  ombro.write(95);
+  delay(pausas2);
+
   _Servos('G', 1);
+  delay(pausas2);
 
   // Recolher o braço com a garrafa
   cotovelo.write(10);
   delay(pausas2);
 
   ombro.write(180);
-  cotovelo.write(20);
-  pulso.write(90);
   delay(pausas2);
-
-  base.write(90);
+  cotovelo.write(20);
+  delay(pausas2);
+  pulso.write(90);
   delay(pausas2);
 
   // Leva a garrfa até o descarte Material
   base.write(105);
+  delay(pausas2);
+  cotovelo.write(20);
+  delay(pausas2);
   ombro.write(60);
   delay(pausas2);
 
