@@ -126,8 +126,37 @@ void setup() {
 
   // Inicializa funções
   //_realizarHandshake(); // Executa o Handshake antes de iniciar o loop principal
+
+
+
+  _abreCancela();
 }
 
+
+
+
+void loop() {
+  _ligaEsteira();
+  int sensorLazer = 0;
+  while (sensorLazer == 0) {                          // Equanto  a garrafa não chegar ao sensor do lazer
+    sensorLazer = digitalRead(pin_Receptor_Lazer_D);  // Lê o status do sensor do lazer
+  }
+  _paraEsteira();                                     // Para a esteira
+  while (sensorLazer == 1) {                          // Equanto  a garrafa não sair do sensor do lazer
+    sensorLazer = digitalRead(pin_Receptor_Lazer_D);  // Lê o status do sensor do lazer
+  }
+}
+
+
+
+
+
+
+
+
+
+
+/*
 void loop() {
   // A leitura da serial roda CONSTANTEMENTE, esteja o sistema pausado ou não
   _recebeComandos();
@@ -136,3 +165,4 @@ void loop() {
     _rotinaEsteiraPrincipal();
   }
 }
+*/
