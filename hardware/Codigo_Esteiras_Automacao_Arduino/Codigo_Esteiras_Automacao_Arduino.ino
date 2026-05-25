@@ -1,6 +1,7 @@
 //==================== Inclusão de Bibliotecas =================//
 #include <ArduinoJson.h>
 #include <Servo.h>
+#include <Queue.h>
 
 //==================== PINOUT ====================//
 //===== Portas Digitais
@@ -43,6 +44,17 @@ Servo servoCancela;
 bool conectado = false;
 const unsigned int TAMANHO_MAX = 512;  // Define um limite de caracteres para evitar realocações constantes de memôria
 
+//===== Variáveis Queue
+// Definindo a estrutura para armazenar os dados de cada garrafa
+int ids_garrafa = 0;
+struct Garrafa {
+  int id;    // Identificador único da garrafa
+  int tipo;  // 1 para Coca-Cola, 2 para Sprite, 3 para Fanta_Laranja, 4 para Fanta_Uva, 5 para Vazia, 6 para Erro
+};
+
+// Cria a instância da fila utilizando a estrutura 'Garrafa'
+Queue<Garrafa> filaEsteira;
+
 //===== Flags
 const byte passo = 61;
 const byte posicaoFantaUva = 35;
@@ -61,12 +73,15 @@ void _contaEncoder();
 void _paraMotor();
 
 //===== Funções Esteira Principal
+void _rotinaEsteiraPrincipal();
 void _ligaEsteira();
 void _desligaEsteira();
 void _paraEsteira();
 void _liberaGarrafa();
 void _abreCancela();
 void _fechaCancela();
+void _registraGarrafa();
+void _garrafaErro();
 
 //===== Funções de comunicação
 void _recebeComandos();
@@ -99,47 +114,32 @@ void setup() {
   digitalWrite(pin_Motor_Esteira_H, LOW);
   digitalWrite(pin_Motor_Esteira_AH, LOW);
   analogWrite(pin_Transmissor_Lazer, potenciaLazer);
-   //digitalWrite(pin_Transmissor_Lazer, LOW);
+  //digitalWrite(pin_Transmissor_Lazer, LOW);
   // Configura a interrupção no pino para detectar a subida (RISING) do sinal
   attachInterrupt(digitalPinToInterrupt(pin_Encolder_Motor_Separadora_D), _contaEncoder, RISING);
   servoCancela.attach(pin_Servo_Cancela);
+
+  // Inicializando Sistema
+  Serial.println("   INICIANDO AUTOMACAO  ");
+  Serial.println("       VISION BELT      ");
   // Posicionando esteira para inciar operações
   _fechaCancela();  // Garante que a cencela está fechada
   _ligaEsteira();   // Ativa a esteira
   delay(2000);      // Espera a esteira normalizar a posição das garrafinhas
-
-  /*
-  // Inicializando Sistema
-  Serial.println("   INICIANDO AUTOMACAO  ");
-  Serial.println("       VISION BELT      ");
-  delay(500);  // 5000
   Serial.println("-----------------------------> Automação Inicializada com Sucesso <-----------------------------");
-*/
+
   // Inicializa funções
   //_realizarHandshake(); // Executa o Handshake antes de iniciar o loop principal
-  //_ligaEsteira();
-
-  //_testesSeparadora();
 }
 
 void loop() {
   _recebeComandos();
-
-  if (okLiberaGarrafa) {
-    _liberaGarrafa();
-    okLiberaGarrafa = false;
-  }
-  sensorLimiteEsteira = digitalRead(pin_Sensor_Limite_Esteira); 
-  if (sensorLimiteEsteira == 1) {
-    delay(100);  //Espera 1s para cair a garrafa
-    okLiberaGarrafa = true;
-  }
+  _rotinaEsteiraPrincipal();
 }
 
 
 void _testesSeparadora() {
   int espera = 500;
-
   // Teste esteira
   _posicaoInicialEsteiraSeparadora();
   delay(500);
@@ -162,10 +162,6 @@ void _testesSeparadora() {
   delay(espera);
 
   _posicaoFinalEsteiraSeparadora();
-
-
-
-
 
   /*
   _posicaoEsteiraSeparadora(posicaoCocaCola);
