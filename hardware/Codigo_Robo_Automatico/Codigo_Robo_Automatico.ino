@@ -66,6 +66,7 @@ void loop() {
   //_Rotina_02();
 
   _Rotina_03();
+  _Rotina_04();
 
   //Descansa os servos
   base.detach();
