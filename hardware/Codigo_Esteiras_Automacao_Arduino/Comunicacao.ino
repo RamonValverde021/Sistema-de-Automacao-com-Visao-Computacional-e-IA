@@ -16,16 +16,16 @@ void _processaComando(const String& json) {
   DeserializationError error = deserializeJson(doc, json);
 
   if (error) {
-    Serial.println("-------------------------");
-    Serial.println("Erro na deserialização");
-    Serial.print("Mensagem recebida: ");
+    Serial.println(F("-------------------------"));
+    Serial.println(F("Erro na deserialização"));
+    Serial.print(F("Mensagem recebida: "));
     Serial.println(json);
-    Serial.print("Erro: ");
+    Serial.print(F("Erro: "));
     Serial.println(error.c_str());
     return;
   }
 
-  Serial.print("JSON recebido: ");
+  Serial.print(F("JSON recebido: "));
   //serializeJsonPretty(doc, Serial);
   serializeJson(doc, Serial);
   Serial.println();
@@ -46,17 +46,17 @@ void _processaComando(const String& json) {
 
     // 2. Controle do Sistema
     if (doc.containsKey("controle")) {
-      String controle = doc["controle"];
-      if (controle == "iniciar_esteira") {
-        Serial.println("Iniciando o Sistema");
+      const char* controle = doc["controle"];
+      if (strcmp(controle, "iniciar_esteira") == 0) {
+        Serial.println(F("Iniciando o Sistema"));
         pause = false;
         _ligaEsteira();
-      } else if (controle == "pausar_processamento") {
-        Serial.println("Pausando o Sistema");
+      } else if (strcmp(controle, "pausar_processamento") == 0) {
+        Serial.println(F("Pausando o Sistema"));
         pause = true;
         _desligaEsteira();  // Para o motor imediatamente
-      } else if (controle == "reiniciar_sistema") {
-        Serial.println("Reiniciando o Sistema");
+      } else if (strcmp(controle, "reiniciar_sistema") == 0) {
+        Serial.println(F("Reiniciando o Sistema"));
         _limpaTerminal();
         delay(250);
         resetFunc();
@@ -65,31 +65,47 @@ void _processaComando(const String& json) {
 
     // 3. Detecção de Garrafas
     if (doc.containsKey("deteccao_de_item")) {
-      String deteccao_de_item = doc["deteccao_de_item"];
-      if (deteccao_de_item == "Coca_Cola") {
-        Serial.println("Adicionando a fila: Coca-Cola");
-      } else if (deteccao_de_item == "Sprite") {
-        Serial.println("Adicionando a fila: Sprite");
-      } else if (deteccao_de_item == "Fanta_Laranja") {
-        Serial.println("Adicionando a fila: Fanta Laranja");
-      } else if (deteccao_de_item == "Fanta_Uva") {
-        Serial.println("Adicionando a fila: Fanta Uva");
-      } else if (deteccao_de_item == "Garrafa_Vazia") {
-        Serial.println("Adicionando a fila: Garrafa Vazia");
-      } else if (deteccao_de_item == "Envase_Incorreto") {
-        Serial.println("Adicionando a fila: Erro de Produção");
+      const char* deteccao_de_item = doc["deteccao_de_item"];
+      byte novaGarrafa = 0;
+      if (strcmp(deteccao_de_item, "Coca_Cola") == 0) {
+        novaGarrafa = 1;
+        filaEsteira.push(novaGarrafa);
+        Serial.println(F("Adicionando a fila: Coca-Cola"));
+      } else if (strcmp(deteccao_de_item, "Sprite") == 0) {
+        novaGarrafa = 2;
+        filaEsteira.push(novaGarrafa);
+        Serial.println(F("Adicionando a fila: Sprite"));
+      } else if (strcmp(deteccao_de_item, "Fanta_Laranja") == 0) {
+        novaGarrafa = 3;
+        filaEsteira.push(novaGarrafa);
+        Serial.println(F("Adicionando a fila: Fanta Laranja"));
+      } else if (strcmp(deteccao_de_item, "Fanta_Uva") == 0) {
+        novaGarrafa = 4;
+        filaEsteira.push(novaGarrafa);
+        Serial.println(F("Adicionando a fila: Fanta Uva"));
+      } else if (strcmp(deteccao_de_item, "Garrafa_Vazia") == 0) {
+        novaGarrafa = 5;
+        filaEsteira.push(novaGarrafa);
+        Serial.println(F("Adicionando a fila: Garrafa Vazia"));
+      } else if (strcmp(deteccao_de_item, "Envase_Incorreto") == 0) {
+        novaGarrafa = 6;
+        filaEsteira.push(novaGarrafa);
+        Serial.println(F("Adicionando a fila: Erro de Produção"));
+      } else {
+        novaGarrafa = 0;
       }
+      Serial.print(F("Total na fila: "));
+      Serial.println(filaEsteira.count());
+      Serial.println();
     }
-
   }
 }
 
 void _realizarHandshake() {
-  Serial.println("\n\nComunicação pronta, aguardando comandos...\n");
+  Serial.println(F("\n\nComunicação pronta, aguardando comandos...\n"));
   while (!conectado) {
     // Envia um status ao servidor
-    String statusModo = "{\"id\":\"arduino\",\"conexao\":\"aguardando\"}";
-    Serial.println(statusModo);  // Avisa o Python que está pronto
+    Serial.println(F("{\"id\":\"arduino\",\"conexao\":\"aguardando\"}"));  // Avisa o Python que está pronto
     _recebeComandos();
     delay(1000);  // Aguarda antes de tentar o PING novamente
   }

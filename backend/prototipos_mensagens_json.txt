@@ -72,6 +72,9 @@
         "precisao": 0.0
     }
 }
+// 508 Bytes
+{"id":"servidor","designacao":"dados_esteira","dados":{"contagem_garrafas":{"coca_cola":0,"sprite":0,"fanta_laranja":0,"fanta_uva":0,"coca_cola_vazia":0,"sprite_vazia":0,"fanta_laranja_vazia":0,"fanta_uva_vazia":0,"coca_cola_com_sprite":0,"coca_cola_com_fanta_laranja":0,"coca_cola_com_fanta_uva":0,"sprite_com_coca_cola":0,"sprite_com_fanta_laranja":0,"sprite_com_fanta_uva":0,"fanta_com_coca_cola":0,"fanta_com_sprite":0,"erro":0},"status":"Aguardando","taxa_deteccao":0,"ultimo_item":None,"precisao":0.0}}
+
 
 //=== CLI
 {

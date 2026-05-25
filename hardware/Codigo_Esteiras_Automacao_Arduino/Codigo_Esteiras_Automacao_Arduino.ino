@@ -41,7 +41,7 @@ int sensorLimiteEsteira = 0;
 Servo servoCancela;
 
 //===== Variáveis de comunicação
-const unsigned int TAMANHO_MAX = 64;  // Define um limite de caracteres para evitar realocações constantes de memôria
+const unsigned int TAMANHO_MAX = 256;  // Aumentado para 256 bytes para suportar as chaves/valores no pool do ArduinoJson
 bool pause = false;                    // Começa rodando ou pausado, dependendo da sua lógica
 bool conectado = true;
 
@@ -114,15 +114,15 @@ void setup() {
 
   // Inicializando Sistema
   Serial.println('\n');
-  Serial.println("======================== INICIANDO AUTOMACAO ========================");
-  Serial.println("============================ CORE VISION ============================");
+  Serial.println(F("======================== INICIANDO AUTOMACAO ========================"));
+  Serial.println(F("============================ CORE VISION ============================"));
   Serial.println();
   // Posicionando esteira para inciar operações
   _fechaCancela();                     // Garante que a cencela está fechada
   _posicaoInicialEsteiraSeparadora();  // Posiciona a Esteira Separadora para o ponto inicial
   _ligaEsteira();                      // Ativa a esteira
   delay(2000);                         // Espera a esteira normalizar a posição das garrafinhas
-  Serial.println("________________ AUTOMAÇÃO INICIALIZADA COM SUCESSO ________________");
+  Serial.println(F("________________ AUTOMAÇÃO INICIALIZADA COM SUCESSO ________________"));
 
   // Inicializa funções
   //_realizarHandshake(); // Executa o Handshake antes de iniciar o loop principal
