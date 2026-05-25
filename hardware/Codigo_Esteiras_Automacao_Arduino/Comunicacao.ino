@@ -1,10 +1,9 @@
 void _recebeComandos() {
-  static String comando = "";
+  String comando = "";  // Limite de 58 Bytes por vez
   if (Serial.available() > 0) {
     comando = Serial.readStringUntil('\n');  // Le novo comando que chegar na Serial
     if (!comando.length() == 0) {            // Se o comando não estiver vazio
       comando.trim();
-      Serial.println(comando);  // Imprime o comando
       _processaComando(comando);
       comando = "";  // Limpa para a próxima mensagem
     }
@@ -12,61 +11,77 @@ void _recebeComandos() {
 }
 
 void _processaComando(const String& json) {
-  StaticJsonDocument<TAMANHO_MAX> doc;                      // Cria um documento JSON para armazenar os dados desserializados
-  DeserializationError error = deserializeJson(doc, json);  // Tenta desserializar os dados MsgPack recebidos para o doc
+  // Certifique-se de que TAMANHO_MAX seja de pelo menos 128 bytes
+  StaticJsonDocument<TAMANHO_MAX> doc;
+  DeserializationError error = deserializeJson(doc, json);
+
   if (error) {
     Serial.println("-------------------------");
     Serial.println("Erro na deserialização");
+    Serial.print("Mensagem recebida: ");
+    Serial.println(json);
+    Serial.print("Erro: ");
     Serial.println(error.c_str());
     return;
-  } else {
-    Serial.print("JSON recebido: \n");
-    serializeJsonPretty(doc, Serial);
-    Serial.println();
+  }
 
-    // Tratamento para afirmar comunicação com o Servidor Python
-    if (_keyJSON(doc.as<JsonObject>(), "id")) {           // Se existe a key "id" e não estiver vaiza no json
-      String id = doc["id"];                              // Pega o valor de "id"
-      if (id == "servidor") {                             // Se o "id" for igual a "servidor"
-        if (_keyJSON(doc.as<JsonObject>(), "conexao")) {  // Se existe a key "conexao" e não estiver vaiza no json
-          String conexao = doc["conexao"];                // Pega o valor de "conexao"
-          if (conexao == "ouvindo") {                     // Se a "conexao" for igual a "ouvindo"
-            conectado = true;                             // Handshake bem-sucedido!
-            // Envia uma confirmação em JSON
-            StaticJsonDocument<100> docConfirma;
-            docConfirma["id"] = "arduino";
-            docConfirma["conexao"] = "estabelecida";
-            serializeJson(docConfirma, Serial);
-            Serial.println();
-          }
-        }
+  Serial.print("JSON recebido: ");
+  //serializeJsonPretty(doc, Serial);
+  serializeJson(doc, Serial);
+  Serial.println();
+
+  // Se chegou aqui, o JSON é válido. Vamos tratar os comandos.
+  if (doc.containsKey("id") && doc["id"] == "servidor") {
+
+    // 1. Handshake / Conexão
+    if (doc.containsKey("conexao") && doc["conexao"] == "ouvindo") {
+      conectado = true;
+      StaticJsonDocument<128> docConfirma;
+      docConfirma["id"] = "arduino";
+      docConfirma["conexao"] = "estabelecida";
+      serializeJson(docConfirma, Serial);
+      Serial.println();
+      return;  // Sai da função
+    }
+
+    // 2. Controle do Sistema
+    if (doc.containsKey("controle")) {
+      String controle = doc["controle"];
+      if (controle == "iniciar_esteira") {
+        Serial.println("Iniciando o Sistema");
+        pause = false;
+        _ligaEsteira();
+      } else if (controle == "pausar_processamento") {
+        Serial.println("Pausando o Sistema");
+        pause = true;
+        _desligaEsteira();  // Para o motor imediatamente
+      } else if (controle == "reiniciar_sistema") {
+        Serial.println("Reiniciando o Sistema");
+        _limpaTerminal();
+        delay(250);
+        resetFunc();
       }
     }
-  }
-}
 
-// Função que retorna se o json contem a chave desejada e se esta vazio
-bool _keyJSON(JsonVariantConst obj, String chave) {
-  // Verifica se a chave existe e não é nula
-  if (!obj.containsKey(chave) || obj[chave].isNull()) return false;  // Verifica se a chave existe no objeto e se o valor dela não é nulo
+    // 3. Detecção de Garrafas
+    if (doc.containsKey("deteccao_de_item")) {
+      String deteccao_de_item = doc["deteccao_de_item"];
+      if (deteccao_de_item == "Coca_Cola") {
+        Serial.println("Adicionando a fila: Coca-Cola");
+      } else if (deteccao_de_item == "Sprite") {
+        Serial.println("Adicionando a fila: Sprite");
+      } else if (deteccao_de_item == "Fanta_Laranja") {
+        Serial.println("Adicionando a fila: Fanta Laranja");
+      } else if (deteccao_de_item == "Fanta_Uva") {
+        Serial.println("Adicionando a fila: Fanta Uva");
+      } else if (deteccao_de_item == "Garrafa_Vazia") {
+        Serial.println("Adicionando a fila: Garrafa Vazia");
+      } else if (deteccao_de_item == "Envase_Incorreto") {
+        Serial.println("Adicionando a fila: Erro de Produção");
+      }
+    }
 
-  JsonVariantConst valor = obj[chave];  // Armazena o valor associado à chave em uma variável
-
-  // String vazia
-  if (valor.is<const char*>()) {                // Se o valor for uma string (const char*)
-    const char* str = valor.as<const char*>();  // Converte o valor para ponteiro de string
-    return str != nullptr && strlen(str) > 0;   // Verifica se a string não é nula e não está vazia
   }
-  // Objeto vazio
-  if (valor.is<JsonObjectConst>()) {                // Se o valor for um objeto JSON
-    return valor.as<JsonObjectConst>().size() > 0;  // Verifica se o objeto tem pelo menos uma chave
-  }
-  // Array vazio
-  if (valor.is<JsonArrayConst>()) {                // Se o valor for um array JSON
-    return valor.as<JsonArrayConst>().size() > 0;  // Verifica se o array tem pelo menos um elemento
-  }
-  // Tudo que não for nulo, string vazia, objeto vazio ou array vazio é considerado válido
-  return true;  // Para todos os outros tipos de valor (número, booleano, etc.), considera válido
 }
 
 void _realizarHandshake() {
@@ -80,29 +95,11 @@ void _realizarHandshake() {
   }
 }
 
-/*
------ Sobre void recebeComandos(); -----
-
-O problema da função anterior é que ela é "gulosa": ela aceita qualquer coisa que o Bluetooth envia e coloca no buffer. 
-Se o módulo enviar um caractere nulo (\0) ou um ruído antes do {, seu JSON ficará inválido (ex: \0{"comando":1}).
-
-Como você está trabalhando com a estrutura JSON, a melhor forma de corrigir isso é fazer a função ignorar tudo o que chegar antes da abertura de chaves {.
-
-Por que isso funciona?
-Filtro de Entrada: A condição if (c == '{' || buffer.length() > 0) garante que, se o buffer estiver vazio e chegar um caractere de "lixo" 
-(como o \0 que o App Inventor às vezes envia), ele será ignorado.
-
-Sincronização: O buffer só começa a crescer quando o primeiro { é detectado.
-
-Resiliência: O uso do .trim() antes de processar ajuda a remover espaços em branco ou caracteres de controle que o chip Jieli costuma anexar ao final da transmissão.
-
-Dica de Desenvolvedor (C++ para Automação)
-Como você mencionou que o App Inventor envia um caractere a mais e isso atrapalha o seu JSON, você pode adicionar uma proteção extra de "timeout". 
-Se por algum motivo o Bluetooth enviar um { mas nunca enviar o }, o seu buffer ficaria preso para sempre.
-
-Sugestão de melhoria:
-if (buffer.length() > 100) buffer = ""; // // Evita estouro de memória se o JSON vier corrompido
-
-No App Inventor
-Lembre-se que no seu bloco WriteBytesWithResponse, o ideal é garantir que a string sendo enviada não tenha espaços extras no final. Use o bloco trim do App Inventor na peça de texto antes de passar para a função de envio.
-*/
+void _limpaTerminal() {
+  // Envia o comando ANSI de "Clear Screen" (ESC [ 2 J) e move o cursor para o topo (ESC [ H)
+  Serial.write("\x1B[2J\x1B[H");
+  // Lê e descarta tudo o que estiver na fila da serial até que não sobre nada
+  while (Serial.available() > 0) {
+    Serial.read();
+  }
+}

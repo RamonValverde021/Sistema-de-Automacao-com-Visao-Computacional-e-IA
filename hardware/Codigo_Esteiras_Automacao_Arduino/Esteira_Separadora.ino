@@ -17,11 +17,13 @@ void _posicaoInicialEsteiraSeparadora() {
   analogWrite(pin_Motor_Separadora_PWM, 150);  // 150
   while (btn_FimDeCurso == 0) {
     btn_FimDeCurso = digitalRead(pin_Chave_Fim_de_Curso_Separadora);
+    _recebeComandos();  // Sempre onde ouver loop fechado, chamar a função de receber dados
   }
   // Desliga o motor
   _paraMotor();
   // Atualiza a coordena da esteira separadora para 0
   coordenadaAtual = 0;
+  contagemMovimentacao = 0;
 }
 
 void _posicaoFinalEsteiraSeparadora() {
@@ -56,6 +58,7 @@ void _posicaoEsteiraSeparadora(int novaCoordenada) {
       }
       //Serial.print("Coordenada: ");
       //Serial.println(copiaContador);
+      _recebeComandos();  // Sempre onde ouver loop fechado, chamar a função de receber dados
     }
     coordenadaAtual = copiaContador;
 
@@ -79,6 +82,7 @@ void _posicaoEsteiraSeparadora(int novaCoordenada) {
       }
       //Serial.print("Coordenada: ");
       //Serial.println(copiaContador);
+      _recebeComandos();  // Sempre onde ouver loop fechado, chamar a função de receber dados
     }
     coordenadaAtual = copiaContador;
   }
@@ -87,10 +91,10 @@ void _posicaoEsteiraSeparadora(int novaCoordenada) {
   _paraMotor();
 
   contagemMovimentacao++;
-  if (contagemMovimentacao == 4) {  // 10
-    delay(500);
-    contagemMovimentacao = 0;
+  if (contagemMovimentacao == 10) {
+    _paraEsteira();
     _posicaoInicialEsteiraSeparadora();
+    _ligaEsteira();
   }
 }
 

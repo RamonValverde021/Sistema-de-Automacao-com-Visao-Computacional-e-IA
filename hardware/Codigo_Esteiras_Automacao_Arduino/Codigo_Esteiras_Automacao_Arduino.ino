@@ -1,7 +1,7 @@
 //==================== Inclusão de Bibliotecas =================//
 #include <ArduinoJson.h>
 #include <Servo.h>
-#include <Queue.h>
+#include <Queue.h>  // Para funcionar a biblioteca tem que ser a do arquivo .zip, não pode atualizar
 
 //==================== PINOUT ====================//
 //===== Portas Digitais
@@ -28,10 +28,10 @@ const byte potenciaLazer = 175;
 
 //===== Variáveis Esteira Separadora
 const int limiteEsteiraSeparadora = 221;
-const byte potenciaEstSep = 225;  // 205 = Potencia maxima com precisão
+const byte potenciaEstSep = 235;  // 225 = Potencia maxima com precisão
 // Definimos a potência máxima e a potência de aproximação lenta
 const int velocidadeMaxima = potenciaEstSep;
-const int velocidadeLenta = 125;  // 125 velocidade mínima pro motor não engasgar
+const int velocidadeLenta = 135;  // 125 velocidade mínima pro motor não engasgar
 const int distanciaFreio = 15;    // 15 (limiteEsteiraSeparadora / 4) - 10
 
 //===== Variáveis Esteira Principal
@@ -41,19 +41,12 @@ int sensorLimiteEsteira = 0;
 Servo servoCancela;
 
 //===== Variáveis de comunicação
-bool conectado = false;
-const unsigned int TAMANHO_MAX = 512;  // Define um limite de caracteres para evitar realocações constantes de memôria
+const unsigned int TAMANHO_MAX = 64;  // Define um limite de caracteres para evitar realocações constantes de memôria
+bool pause = false;                    // Começa rodando ou pausado, dependendo da sua lógica
+bool conectado = true;
 
 //===== Variáveis Queue
-// Definindo a estrutura para armazenar os dados de cada garrafa
-int ids_garrafa = 0;
-struct Garrafa {
-  int id;    // Identificador único da garrafa
-  int tipo;  // 1 para Coca-Cola, 2 para Sprite, 3 para Fanta_Laranja, 4 para Fanta_Uva, 5 para Vazia, 6 para Erro
-};
-
-// Cria a instância da fila utilizando a estrutura 'Garrafa'
-Queue<Garrafa> filaEsteira;
+Queue<int> filaEsteira = Queue<int>(27);  // Queue of max 256 int
 
 //===== Flags
 const byte passo = 61;
@@ -86,8 +79,9 @@ void _garrafaErro();
 //===== Funções de comunicação
 void _recebeComandos();
 void _processaComando(const String& json);
-bool _keyJSON(JsonVariantConst obj, String chave);
 void _realizarHandshake();
+void (*resetFunc)(void) = 0;  // Função para criar o auto reset
+void _limpaTerminal();
 
 //==================== CODIGO PRINCIPAL ====================//
 void setup() {
@@ -114,78 +108,31 @@ void setup() {
   digitalWrite(pin_Motor_Esteira_H, LOW);
   digitalWrite(pin_Motor_Esteira_AH, LOW);
   analogWrite(pin_Transmissor_Lazer, potenciaLazer);
-  //digitalWrite(pin_Transmissor_Lazer, LOW);
   // Configura a interrupção no pino para detectar a subida (RISING) do sinal
   attachInterrupt(digitalPinToInterrupt(pin_Encolder_Motor_Separadora_D), _contaEncoder, RISING);
   servoCancela.attach(pin_Servo_Cancela);
 
   // Inicializando Sistema
-  Serial.println("   INICIANDO AUTOMACAO  ");
-  Serial.println("       VISION BELT      ");
+  Serial.println('\n');
+  Serial.println("======================== INICIANDO AUTOMACAO ========================");
+  Serial.println("============================ CORE VISION ============================");
+  Serial.println();
   // Posicionando esteira para inciar operações
-  _fechaCancela();  // Garante que a cencela está fechada
-  _ligaEsteira();   // Ativa a esteira
-  delay(2000);      // Espera a esteira normalizar a posição das garrafinhas
-  Serial.println("-----------------------------> Automação Inicializada com Sucesso <-----------------------------");
+  _fechaCancela();                     // Garante que a cencela está fechada
+  _posicaoInicialEsteiraSeparadora();  // Posiciona a Esteira Separadora para o ponto inicial
+  _ligaEsteira();                      // Ativa a esteira
+  delay(2000);                         // Espera a esteira normalizar a posição das garrafinhas
+  Serial.println("________________ AUTOMAÇÃO INICIALIZADA COM SUCESSO ________________");
 
   // Inicializa funções
   //_realizarHandshake(); // Executa o Handshake antes de iniciar o loop principal
 }
 
 void loop() {
+  // A leitura da serial roda CONSTANTEMENTE, esteja o sistema pausado ou não
   _recebeComandos();
-  _rotinaEsteiraPrincipal();
-}
-
-
-void _testesSeparadora() {
-  int espera = 500;
-  // Teste esteira
-  _posicaoInicialEsteiraSeparadora();
-  delay(500);
-  _posicaoEsteiraSeparadora(posicaoFantaUva);
-  delay(espera);
-  _posicaoEsteiraSeparadora(posicaoFantaLaranja);
-  delay(espera);
-  _posicaoEsteiraSeparadora(posicaoSprite);
-  delay(espera);
-  _posicaoEsteiraSeparadora(posicaoCocaCola);
-  delay(espera);
-
-  _posicaoEsteiraSeparadora(posicaoCocaCola);
-  delay(espera);
-  _posicaoEsteiraSeparadora(posicaoSprite);
-  delay(espera);
-  _posicaoEsteiraSeparadora(posicaoFantaLaranja);
-  delay(espera);
-  _posicaoEsteiraSeparadora(posicaoFantaUva);
-  delay(espera);
-
-  _posicaoFinalEsteiraSeparadora();
-
-  /*
-  _posicaoEsteiraSeparadora(posicaoCocaCola);
-  delay(500);
-  _posicaoEsteiraSeparadora(posicaoFantaUva);
-  delay(500);
-  _posicaoEsteiraSeparadora(posicaoFantaLaranja);
-  delay(500);
-  _posicaoEsteiraSeparadora(posicaoSprite);
-  delay(500);
-  _posicaoEsteiraSeparadora(posicaoCocaCola);
-  delay(500);
-  _posicaoEsteiraSeparadora(posicaoSprite);
-  delay(500);
-  _posicaoEsteiraSeparadora(posicaoFantaUva);
-  delay(500);
-  _posicaoEsteiraSeparadora(posicaoFantaLaranja);
-  delay(500);
-  _posicaoEsteiraSeparadora(posicaoSprite);
-  delay(500);
-  _posicaoEsteiraSeparadora(posicaoCocaCola);
-  delay(500);
-
-  _posicaoEsteiraSeparadora(posicaoFantaLaranja);
-  delay(500);
-  */
+  // A lógica da esteira só roda se NÃO estiver pausado
+  if (!pause && conectado) {
+    _rotinaEsteiraPrincipal();
+  }
 }

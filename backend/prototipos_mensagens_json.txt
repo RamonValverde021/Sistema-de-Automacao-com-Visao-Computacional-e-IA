@@ -32,6 +32,10 @@
 }
 
 
+
+
+
+
 //================= Mensagens do Servidor Python para o Dashboard =================//
 //===  dados_esteira 
 {
@@ -77,74 +81,76 @@
 }
 
 
+
+
+
+
 //================= Mensagens do Servidor Python para o Arduino =================//
 //=== Garrfas
 {
-    "id": "servidor",
-    "designacao": "deteccao_de_item",
-    "item": "Coca_Cola"
+    "id":"servidor",
+    "deteccao_de_item":"Coca_Cola"
 }
 
 {
-    "id": "servidor",
-    "designacao": "deteccao_de_item",
-    "item": "Sprite"
+    "id":"servidor",
+    "deteccao_de_item":"Sprite"
 }
 
 {
-    "id": "servidor",
-    "designacao": "deteccao_de_item",
-    "item": "Fanta_Laranja"
+    "id":"servidor",
+    "deteccao_de_item":"Fanta_Laranja"
 }
+{"id":"servidor","deteccao_de_item":"Fanta_Laranja"}
 
 {
-    "id": "servidor",
-    "designacao": "deteccao_de_item",
-    "item": "Fanta_Uva"
+    "id":"servidor",
+    "deteccao_de_item":"Fanta_Uva"
 }
 
-// Como a esteira não tem tela ou interface, 
-// não preciso informar como são exatamente as garrafas erradas
+// Como a esteira não tem tela ou interface, não preciso informar como são exatamente as garrafas erradas
 //=== Garrafas Vazias
 {
     "id": "servidor",
-    "designacao": "deteccao_de_item",
-    "item": "Envase_Vazio"
+    "deteccao_de_item": "Garrafa_Vazia"
 }
 
 //=== Erros de fabricação
 {
     "id": "servidor",
-    "designacao": "deteccao_de_item",
-    "item": "Envase_Incorreto"
+    "deteccao_de_item": "Envase_Incorreto"
 }
 
 //=== Controle
 {
     "id":"servidor",
-    "designacao":"controle",
-    "comando":"ligar_esteira"
+    "controle":"iniciar_esteira"
 }
+{"id":"servidor","controle":"iniciar_esteira"}
 
 {
     "id":"servidor",
-    "designacao":"controle",
-    "comando":"pausar_processamento"
+    "controle":"pausar_processamento"
 }
+{"id":"servidor","controle":"pausar_processamento"}
 
 {
     "id":"servidor",
-    "designacao":"controle",
-    "comando":"reiniciar_sistema"
+    "controle":"reiniciar_sistema"
 }
+{"id":"servidor","controle":"reiniciar_sistema"}
 
 //=== Conexão
 {
     "id":"servidor",
     "conexao":"ouvindo"
 }
-
 {"id":"servidor","conexao":"ouvindo"}
+
+
+
+
+
 
 //================= Mensagens do Arduino para o Servidor Python =================//
 {
