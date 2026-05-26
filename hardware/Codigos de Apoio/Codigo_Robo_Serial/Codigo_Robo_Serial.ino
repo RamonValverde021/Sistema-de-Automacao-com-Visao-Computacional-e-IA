@@ -16,8 +16,8 @@ const int pinOmbro = 5;
 const int pinCotovelo = 6;
 const int pinRotacao = 7;
 const int pinPulso = 8;
-const int pinGarraA = 9;
-const int pinGarraF = 10;
+const int pinGarraF = 9;
+const int pinGarraA = 10;
 const int luz = 11;
 String status_garra = "FECHADA";
 

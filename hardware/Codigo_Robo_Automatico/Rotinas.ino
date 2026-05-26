@@ -87,17 +87,17 @@ void _Rotina_02() {
 
 void _Rotina_03() {
   // Pegar a garrafa na esteira
-  base.write(180);
+  base.write(178);
   delay(pausas2);
 
   _Servos('G', 0);
-  cotovelo.write(50);
+  cotovelo.write(40);
   delay(pausas2);
 
-  pulso.write(70);
+  pulso.write(80);
   delay(pausas2);
 
-  ombro.write(95);
+  ombro.write(100);
   delay(pausas2);
 
   _Servos('G', 1);
@@ -152,13 +152,13 @@ void _Rotina_04() {
   delay(pausas2);
 
   _Servos('G', 0);
-  cotovelo.write(50);
+  cotovelo.write(40);
   delay(pausas2);
 
-  pulso.write(70);
+  pulso.write(80);
   delay(pausas2);
 
-  ombro.write(95);
+  ombro.write(100);
   delay(pausas2);
 
   _Servos('G', 1);

@@ -3,7 +3,7 @@ const int delay_Ombro = 6;
 const int delay_Cotovelo = 6;
 const int delay_Pulso = 6;
 const int delay_Rotacao = 3;  // 6
-const int delay_Garra = 150;
+const int delay_Garra = 600;
 
 const int pausas = 250;
 
@@ -91,11 +91,19 @@ void _Servos(char servo, int posicao) {
 
   if (servo == 'G') {
     // 1 garra aberta   0 garra fechada
-    int potencia = 255;
     if (posicao == 1) {
       // Abre a Garra
-      digitalWrite(pinGarraA, LOW);
-      digitalWrite(pinGarraF, HIGH);
+      for (int c = 0; c < 250; c++) {
+        digitalWrite(pinGarraA, LOW);
+        digitalWrite(pinGarraF, HIGH);
+        delay(10);
+        digitalWrite(pinGarraA, LOW);
+        digitalWrite(pinGarraF, LOW);
+      }
+
+
+
+
       delay(delay_Garra);
       digitalWrite(pinGarraA, LOW);
       digitalWrite(pinGarraF, LOW);
@@ -103,7 +111,7 @@ void _Servos(char servo, int posicao) {
       // Fecha a Garra
       digitalWrite(pinGarraA, HIGH);
       digitalWrite(pinGarraF, LOW);
-      delay(delay_Garra);
+      delay(300);
       digitalWrite(pinGarraA, LOW);
       digitalWrite(pinGarraF, LOW);
     }

@@ -31,7 +31,7 @@ void _Servos(char servo, int posicao) {
     Serial.println("Rotação concluida!");
   }
 
-  int delay_Garra = 150;  // 150
+  int delay_Garra = 200;  // 150
   if (servo == 'G') {
     // 1 garra aberta   0 garra fechada
     if (posicao == 1) {
