@@ -2,64 +2,69 @@
 void _DisplaySerial(char index, int coordenada) {
   switch (index) {
     case '0':
-      Serial.println("FUNCAO: ENTRADA DE DADOS");
+      Serial.println(F("FUNCAO: ENTRADA DE DADOS"));
       break;
 
     case '1':
-      Serial.println("AUTOMACAO 01: MINHA ROTINA");
+      Serial.println(F("EXECUTANDO ROTINA 01:"));
       break;
 
     case '2':
-      Serial.println("AUTOMACAO 02: PEGAR OVO");
+      Serial.println(F("EXECUTANDO ROTINA 02:"));
       break;
 
     case '3':
-      Serial.println("AUTOMACAO 03: PEGAR NA ESTEIRA");
+      Serial.println(F("EXECUTANDO ROTINA 03:"));
+      break;
+
+    case '4':
+      Serial.println(F("EXECUTANDO ROTINA 04:"));
       break;
 
     case 'I':
-      Serial.println("\n\n     INICIANDO ROBO     ");
-      Serial.println("      ARM MARK VI      \n");
-      delay(1000);  // 5000
+      Serial.println('\n');
+      Serial.println(F("     INICIANDO ROBO     "));
+      Serial.println(F("      ARM MARK VI      \n"));
+      delay(500);  // 5000
       break;
 
     case 'B':
-      Serial.print("BASE: ");
+      Serial.print(F("BASE: "));
       Serial.println(coordenada);
       break;
 
     case 'O':
-      Serial.print("OMBRO: ");
+      Serial.print(F("OMBRO: "));
       Serial.println(coordenada);
       break;
 
     case 'C':
-      Serial.print("COTOVELO: ");
+      Serial.print(F("COTOVELO: "));
       Serial.println(coordenada);
       break;
 
     case 'P':
-      Serial.print("PULSO: ");
+      Serial.print(F("PULSO: "));
       Serial.println(coordenada);
       break;
 
     case 'R':
-      Serial.print("ROTACAO: ");
+      Serial.print(F("ROTACAO: "));
       Serial.println(coordenada);
       break;
 
     case 'G':
-      Serial.print("GARRA: ");
+      Serial.print(F("GARRA: "));
       Serial.println(coordenada);
       break;
 
     case 'L':
-      Serial.print("LUZ: ");
-      digitalRead(luz) == 1 ? Serial.println("LIGADA") : Serial.println("DESLIGADA");
+      Serial.print(F("LUZ: "));
+      digitalRead(luz) == 1 ? Serial.println(F("LIGADA")) : Serial.println(F("DESLIGADA"));
       break;
 
     case 'Z':
-      Serial.print("POSICAO INICIAL");
+      Serial.print(F("POSICAO INICIAL"));
       break;
 
     default:
@@ -68,14 +73,14 @@ void _DisplaySerial(char index, int coordenada) {
 }
 
 unsigned long tempo_Anterior_Status = 0;
-unsigned long intervalo_Status = 2000;  // 1000
+unsigned long intervalo_Status = 1000;  // 1000
 // Exibe na Serial constantemente a posição dos servos motores
-void _Status(int tipo) {
+void _Status(int envio) {
   unsigned long tempo_Atual_Status = millis();
   if (tempo_Atual_Status - tempo_Anterior_Status >= intervalo_Status) {
     tempo_Anterior_Status = tempo_Atual_Status;
 
-    if (tipo == 1) {
+    if (envio == 1) {
       String dados = "";
       dados += "B = ";
       dados += base.read();
@@ -91,10 +96,10 @@ void _Status(int tipo) {
       dados += status_garra;
       dados += " - L = ";
       digitalRead(luz) == HIGH ? dados += "Ligada" : dados += "Desligada";
-      Serial.print("Status: ");
-      Serial.println(dados);
 
-    } else if (tipo == 2) {
+      Serial.print(F("Status: "));
+      Serial.println(dados);
+    } else if (envio == 2) {
       String dados = "";
       dados += "B-";
       dados += base.read();
@@ -107,7 +112,7 @@ void _Status(int tipo) {
       dados += "/R-";
       dados += rotacao.read();
       dados += "/G-";
-      dados += status_garra;
+      status_garra == 0 ? dados += "0" : dados += "1";
       dados += "/L-";
       digitalRead(luz) == HIGH ? dados += "LIGADA" : dados += "DESLIGADA";
       Bluetooth.print(dados);

@@ -1,7 +1,4 @@
-0 Coca-Cola
-1 Fanta Laranja
-2 Guaraná
-3  Fundo
-4 Guaraná com Coca-Cola
-5 Coca-Cola Vazia
-6 Fanta com Coca-Cola
+0 Coca_Cola
+1 Fanta_Laranja
+2 Sprite
+3 Fundo

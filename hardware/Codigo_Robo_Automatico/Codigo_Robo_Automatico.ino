@@ -60,11 +60,8 @@ void setup() {
 }
 
 void loop() {
-  //_Rotina_01(); // Pega a garrafa, descarta o liquido e depois a garrafa
+  _Rotina_01(); // Pega a garrafa, descarta o liquido e depois a garrafa
   //_Rotina_02();
-
-  _Rotina_03();
-  //_Rotina_04();
 
   //Descansa os servos
   base.detach();
@@ -72,7 +69,7 @@ void loop() {
   cotovelo.detach();
   rotacao.detach();
   pulso.detach();
-  delay(10000);  // Espera 10 segundos
+  delay(30000);  // Espera 30 segundos
 
   //Reativa os servos
   base.attach(pinBase);
