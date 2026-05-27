@@ -10,15 +10,16 @@ Servo rotacao;
 Servo pulso;
 void _Servos(char servo, int posicao);
 void _OmbroCotovelo(int posicao_ombro, int posicao_cotovelo);
+void _OmbroPulso(int posicao_ombro, int posicao_pulso);
 void _CotoveloPulso(int posicao_cotovelo, int posicao_pulso);
 void _BaseRotacao(int posicao_base, int posicao_rotacao);
 void _OmbroCotoveloPulso(int posicao_ombro, int posicao_cotovelo, int posicao_pulso);
+void _BaseOmbroCotovelo(int posicao_base, int posicao_ombro, int posicao_cotovelo);
 void _posicaoInicial();
 
 // Variaveis
 bool bluetooth = false;
 bool serial = false;
-int posicaoAtual = -1;
 
 const int RxD = 2;
 const int TxD = 3;
@@ -30,7 +31,6 @@ const int pinPulso = 8;
 const int pinOmbro = 9;
 const int pinCotovelo = 10;
 const int luz = 11;
-String status_garra = "FECHADA";
 
 // Entradas e Saidas Bluetooth
 SoftwareSerial Bluetooth(RxD, TxD);  //RX pino 3, TX pino 2
@@ -40,10 +40,10 @@ const unsigned int TAMANHO_MAX = 256;  // Aumentado para 256 bytes para suportar
 
 // Outras Funções
 void _DisplaySerial(char index, int coordenada);
-void _entradaDados(char *articulacao, int *posicao);
-void _Status(int envio);
+void _entradaDados();
 
 // Rotinas
+void _posicaoInicial();
 void _Rotina_01();
 void _Rotina_02();
 
@@ -82,14 +82,10 @@ void setup() {
   delay(1000);
   digitalWrite(luz, LOW);
 
-  // Primeiros comandos
-  _entradaDados('x', -1);  // Chamada de função para bloquear a ultima instrução enviada
-  //_Status(1);
   delay(500);
   _DisplaySerial('I', 0);
 }
 
 void loop() {
-  //_Status(2);
-  _Comandos();
+  _entradaDados();
 }
