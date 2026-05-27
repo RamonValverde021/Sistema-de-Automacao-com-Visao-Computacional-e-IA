@@ -1,8 +1,8 @@
-const int delay_Base = 6;
-const int delay_Ombro = 6;
-const int delay_Cotovelo = 6;
-const int delay_Pulso = 6;
-const int delay_Rotacao = 3;  // 6
+const int delay_Base = 8;      // 6 - 12
+const int delay_Ombro = 4;     // 6 - 12
+const int delay_Cotovelo = 8;  // 6 - 12
+const int delay_Pulso = 8;     // 6 - 12
+const int delay_Rotacao = 5;    // 3 - 5
 
 const int pausas = 250;
 
@@ -88,32 +88,40 @@ void _Servos(char servo, int posicao) {
     delay(pausas);
   }
 
+  const int potencia_garra_max = 255;
+  const int potencia_garra_min = 175;
+  const int potencia_garra_aperto = 150; // 135
   const int delay_Garra = 150;
   if (servo == 'G') {
     // 1 fechar garra e 0 para abrir
     if (posicao == 1) {
-      // Fecha a Garra
-      digitalWrite(pinGarraA, LOW);
-      digitalWrite(pinGarraF, HIGH);
+      // Fecha a Garra e mantem apertada
+      analogWrite(pinGarraA, 0);
+      analogWrite(pinGarraF, potencia_garra_max);
       delay(delay_Garra);
-      digitalWrite(pinGarraA, LOW);
-      digitalWrite(pinGarraF, LOW);
+      analogWrite(pinGarraA, 0);
+      analogWrite(pinGarraF, potencia_garra_aperto);
+    } else if (posicao >= 2) {
+      // Fecha a Garra sem manter apertada
+      analogWrite(pinGarraA, 0);
+      analogWrite(pinGarraF, potencia_garra_max);
+      delay(delay_Garra);
+      analogWrite(pinGarraA, 0);
+      analogWrite(pinGarraF, 0);
     } else {
       // Abre a Garra
-      digitalWrite(pinGarraA, HIGH);
-      digitalWrite(pinGarraF, LOW);
+      analogWrite(pinGarraA, potencia_garra_min);
+      analogWrite(pinGarraF, 0);
       delay(delay_Garra);
-      digitalWrite(pinGarraA, LOW);
-      digitalWrite(pinGarraF, LOW);
+      analogWrite(pinGarraA, 0);
+      analogWrite(pinGarraF, 0);
     }
-    // Garante que a garra estará desligada
-    digitalWrite(pinGarraA, LOW);
-    digitalWrite(pinGarraF, LOW);
   }
 }
 
-
 //////////////////////// SERVOS SIMULTANEOS ////////////////////////
+const int pausas_movimento_duplo = 6;
+const int pausas_movimento_triplo = 3;
 
 void _OmbroCotovelo(int posicao_ombro, int posicao_cotovelo) {
   int ombro_atual = 0, cotovelo_atual = 0, o = 0, c = 0;
@@ -138,7 +146,7 @@ void _OmbroCotovelo(int posicao_ombro, int posicao_cotovelo) {
       c--;
       cotovelo.write(c);
     }
-    delay(4);
+    delay(pausas_movimento_duplo);
   }
   delay(pausas);
 }
@@ -166,7 +174,7 @@ void _OmbroPulso(int posicao_ombro, int posicao_pulso) {
       p--;
       pulso.write(p);
     }
-    delay(4);
+    delay(pausas_movimento_duplo);
   }
   delay(pausas);
 }
@@ -194,7 +202,7 @@ void _CotoveloPulso(int posicao_cotovelo, int posicao_pulso) {
       p--;
       pulso.write(p);
     }
-    delay(4);
+    delay(pausas_movimento_duplo);
   }
   delay(pausas);
 }
@@ -222,7 +230,7 @@ void _BaseRotacao(int posicao_base, int posicao_rotacao) {
       r--;
       rotacao.write(r);
     }
-    delay(5);
+    delay(pausas_movimento_duplo);
   }
   delay(pausas);
 }
@@ -260,7 +268,7 @@ void _OmbroCotoveloPulso(int posicao_ombro, int posicao_cotovelo, int posicao_pu
       p--;
       pulso.write(p);
     }
-    delay(3);
+    delay(pausas_movimento_triplo);
   }
   delay(pausas);
 }
@@ -298,7 +306,7 @@ void _BaseOmbroCotovelo(int posicao_base, int posicao_ombro, int posicao_cotovel
       c--;
       cotovelo.write(c);
     }
-    delay(3);
+    delay(pausas_movimento_triplo);
   }
   delay(pausas);
 }
