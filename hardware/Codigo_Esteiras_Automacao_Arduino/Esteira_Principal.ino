@@ -41,6 +41,10 @@ void _rotinaEsteiraPrincipal() {
 
   // Verifica se existem garrafas registradas na fila através do contador
   if (filaEsteira.count() > 0) {
+    // Garante que a esteira principal esteja sempre ligada enquanto houver itens na fila
+    // e que o sistema continue escutando por novos comandos (ex: pausa de emergência).
+    _ligaEsteira();
+    _recebeComandos();
     // Espia os dados da garrafa que está na frente da fila (a mais antiga)
     int garrafaAtual = filaEsteira.peek();
     if ((garrafaAtual > 0) && (garrafaAtual < 5)) {  // Se for alguma garrafa com envase correto
@@ -71,8 +75,11 @@ void _rotinaEsteiraPrincipal() {
       okLiberaGarrafa = true;  // Libera a proxima garrafa na cancela já que esta não chegará até o sensor do final da esteira
     }
   } else {
-    Serial.println(F("Fila de dados está vazia!"));
-    okLiberaGarrafa = true;
+    // Se a fila está vazia, a esteira deve continuar rodando para que o Python
+    // possa detectar um novo item. A função _recebeComandos() é chamada para
+    // que a fila seja populada assim que um comando chegar.
+    _ligaEsteira();
+    _recebeComandos(); // Escuta ativamente por comandos do Python.
   }
 }
 

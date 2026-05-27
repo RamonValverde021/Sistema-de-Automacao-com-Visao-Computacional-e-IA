@@ -42,8 +42,8 @@ with open(class_names_path, "r", encoding="utf-8") as f:
         class_names.append(clean_name)
 
 # Portas Seriais Dedicadas
-PORTA_SERIAL_ESTEIRA = "COM8"
-PORTA_SERIAL_ROBO = "COM5"
+PORTA_SERIAL_ESTEIRA = "COM3"
+PORTA_SERIAL_ROBO = "COM9"
 BAUD_RATE = 38400
 
 esteira = None
@@ -100,8 +100,8 @@ bg_subtractor = cv2.createBackgroundSubtractorMOG2(
     history=100, varThreshold=40, detectShadows=False
 )
 
-CONFIDENCE_THRESHOLD = 0.95
-MIN_PIXELS_MOTION = 2000
+CONFIDENCE_THRESHOLD = 0.85
+MIN_PIXELS_MOTION = 3000
 
 
 # =====================================================================
@@ -279,17 +279,24 @@ def enviar_comando_maquina(label_item):
         print(f"[Sistema] 'ROTINA_02' enfileirada. Aguardando sinal da Esteira para o item: {label_item}")
 
     # Cenário 3: Garrafas conformes/normais -> Enviadas à ESTEIRA via JSON
+    # A pausa é enviada no loop_visao_computacional, aqui só enviamos o item e o comando de iniciar.
     else:
         if esteira and esteira.is_open:
-            payload_dict = {"id": "servidor", "deteccao_de_item": label_item}
-            payload_json = json.dumps(payload_dict) + "\n"
             try:
-                esteira.write(payload_json.encode("utf-8"))
-                print(f"[Serial] JSON despachado para Esteira: {payload_dict}")
+                # 1. Envia a identificação do item para a fila da esteira
+                item_payload = {"id": "servidor", "deteccao_de_item": label_item}
+                esteira.write((json.dumps(item_payload) + "\n").encode("utf-8"))
+                print(f"[Serial] JSON despachado para Esteira: {item_payload}")
+                time.sleep(0.1)  # Pequena pausa para garantir que o Arduino processe
+
+                # 2. Envia comando para iniciar a esteira novamente
+                start_payload = {"id": "servidor", "controle": "iniciar_esteira"}
+                esteira.write((json.dumps(start_payload) + "\n").encode("utf-8"))
+                print(f"[Serial] Comando enviado à Esteira: {start_payload}")
             except Exception as e:
-                print(f"[Erro Serial] Falha ao despachar JSON para a Esteira: {e}")
+                print(f"[Erro Serial] Falha na sequência de comandos para a Esteira: {e}")
         else:
-            print(f"[Simulação Esteira] JSON retido para: {label_item}")
+            print(f"[Simulação Esteira] Sequência retida para: {label_item} (Item, Início)")
 
 
 # =====================================================================
@@ -373,6 +380,19 @@ async def loop_visao_computacional():
                 roi_color = (0, 255, 255)
                 dados_esteira["dados"]["status"] = "Processando"
                 mudou_estado = True
+
+                # --- INÍCIO DO AJUSTE: Envia comando de pausa imediatamente ao detectar objeto na ROI ---
+                if esteira and esteira.is_open:
+                    try:
+                        pause_payload = {"id": "servidor", "controle": "pausar_processamento"}
+                        esteira.write((json.dumps(pause_payload) + "\n").encode("utf-8"))
+                        print(f"[Serial] Comando enviado à Esteira: {pause_payload}")
+                        time.sleep(0.1) # Pequena pausa para garantir que o Arduino processe
+                    except Exception as e:
+                        print(f"[Erro Serial] Falha ao enviar comando de pausa para a Esteira: {e}")
+                else:
+                    print("[Simulação Esteira] Comando 'pausar_processamento' retido.")
+                # --- FIM DO AJUSTE ---
 
                 roi_array = np.asarray(roi, dtype=np.float32).reshape(1, 224, 224, 3)
                 roi_array = (roi_array / 127.5) - 1

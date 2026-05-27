@@ -23,7 +23,7 @@
 #define pin_Chave_Fim_de_Curso_Separadora 16  // A2 - Chave fim de curso da esteira separadora
 
 //==================== VARIÁVEIS GLOBAIS ====================//
-const byte potenciaEstPrinc = 90;  // 85 Potencia minima = 65
+const byte potenciaEstPrinc = 90;  // 90 Potencia minima = 65
 const byte potenciaLazer = 175;
 
 //===== Variáveis Esteira Separadora
@@ -111,6 +111,7 @@ void setup() {
   // Configura a interrupção no pino para detectar a subida (RISING) do sinal
   attachInterrupt(digitalPinToInterrupt(pin_Encolder_Motor_Separadora_D), _contaEncoder, RISING);
   servoCancela.attach(pin_Servo_Cancela);
+  _fechaCancela();                     // Garante que a cencela está fechada
 
   // Inicializa funções
   _realizarHandshake(); // Executa o Handshake antes de iniciar o loop principal
@@ -121,7 +122,6 @@ void setup() {
   Serial.println(F("============================ CORE VISION ============================"));
   Serial.println();
   // Posicionando esteira para inciar operações
-  _fechaCancela();                     // Garante que a cencela está fechada
   _posicaoInicialEsteiraSeparadora();  // Posiciona a Esteira Separadora para o ponto inicial
   _ligaEsteira();                      // Ativa a esteira
   delay(2000);                         // Espera a esteira normalizar a posição das garrafinhas
