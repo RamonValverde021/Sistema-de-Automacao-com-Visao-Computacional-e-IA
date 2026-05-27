@@ -25,3 +25,11 @@ pip install python-dotenv
 
 # escolhe o modelo (gemini-1.5-flash e rapido e gratuito)
 modelo = genai.GenerativeModel('gemini-1.5-flash')
+
+pip install websockets
+
+python -m pip install pyserial
+
+pip install python-dotenv
+
+pip install google-genai

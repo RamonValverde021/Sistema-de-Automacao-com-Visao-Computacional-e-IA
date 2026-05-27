@@ -166,6 +166,13 @@
     "conexao":"estabelecida"
 }
 
+{
+    "id":"esteira",
+    "comando":"remover_item"
+}
+
+{"id":"esteira","comando":"remover_item"}
+
 
 
 

@@ -72,7 +72,6 @@ void _rotinaEsteiraPrincipal() {
     }
   } else {
     Serial.println(F("Fila de dados está vazia!"));
-    //_desligaEsteira();
     okLiberaGarrafa = true;
   }
 }
@@ -91,7 +90,26 @@ void _liberaGarrafa() {
   _ligaEsteira();
 }
 
-
+void _garrafaErro() {
+  Serial.println(F("Robô entrando execução para descarte de garrafa."));
+  int sensorLazer = 0;
+  while (sensorLazer == 0) {                          // Equanto  a garrafa não chegar ao sensor do lazer
+    sensorLazer = digitalRead(pin_Receptor_Lazer_D);  // Lê o status do sensor do lazer
+    _recebeComandos();                                // Sempre onde ouver loop fechado, chamar a função de receber dados
+  }
+  _paraEsteira();                                     // Para a esteira
+  _posicaoInicialEsteiraSeparadora();                 // Aproveita e já faz a manutenção da esteira separadora enquanto o robo não pega a garrafa
+  Serial.println(F("{\"id\":\"esteira\",\"comando\":\"remover_item\"}")); // Envia o comando para servidor informando para o robo pegar a garrafa
+  while (sensorLazer == 1) {                          // Equanto  a garrafa não sair do sensor do lazer
+    sensorLazer = digitalRead(pin_Receptor_Lazer_D);  // Lê o status do sensor do lazer
+    _recebeComandos();                                // Sempre onde ouver loop fechado, chamar a função de receber dados
+  }
+  // Remove o elemento da frente da fila e libera a memória RAM
+  filaEsteira.pop();
+  Serial.print(F("Garrafa processada e removida da fila. Restantes: "));
+  Serial.println(filaEsteira.count());
+  Serial.println();
+}
 
 
 /*========================================= TESTES =========================================*/
@@ -156,26 +174,6 @@ void _registraGarrafa() {
   else if (novaGarrafa == 6) Serial.println(F("Erro de Produção"));
 
   Serial.print(F("Total na fila: "));
-  Serial.println(filaEsteira.count());
-  Serial.println();
-}
-
-void _garrafaErro() {
-  Serial.println(F("Robô entrando execução para descarte de garrafa."));
-  int sensorLazer = 0;
-  while (sensorLazer == 0) {                          // Equanto  a garrafa não chegar ao sensor do lazer
-    sensorLazer = digitalRead(pin_Receptor_Lazer_D);  // Lê o status do sensor do lazer
-    _recebeComandos();                                // Sempre onde ouver loop fechado, chamar a função de receber dados
-  }
-  _paraEsteira();                                     // Para a esteira
-  _posicaoInicialEsteiraSeparadora();                 // Aproveita e já faz a manutenção da esteira separadora enquanto o robo não pega a garrafa
-  while (sensorLazer == 1) {                          // Equanto  a garrafa não sair do sensor do lazer
-    sensorLazer = digitalRead(pin_Receptor_Lazer_D);  // Lê o status do sensor do lazer
-    _recebeComandos();                                // Sempre onde ouver loop fechado, chamar a função de receber dados
-  }
-  // Remove o elemento da frente da fila e libera a memória RAM
-  filaEsteira.pop();
-  Serial.print(F("Garrafa processada e removida da fila. Restantes: "));
   Serial.println(filaEsteira.count());
   Serial.println();
 }

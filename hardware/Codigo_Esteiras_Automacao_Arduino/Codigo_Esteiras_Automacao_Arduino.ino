@@ -43,7 +43,7 @@ Servo servoCancela;
 //===== Variáveis de comunicação
 const unsigned int TAMANHO_MAX = 256;  // Aumentado para 256 bytes para suportar as chaves/valores no pool do ArduinoJson
 bool pause = false;                    // Começa rodando ou pausado, dependendo da sua lógica
-bool conectado = true;
+bool conectado = false;
 
 //===== Variáveis Queue
 Queue<int> filaEsteira = Queue<int>(27);  // Queue of max 256 int
@@ -112,6 +112,9 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(pin_Encolder_Motor_Separadora_D), _contaEncoder, RISING);
   servoCancela.attach(pin_Servo_Cancela);
 
+  // Inicializa funções
+  _realizarHandshake(); // Executa o Handshake antes de iniciar o loop principal
+
   // Inicializando Sistema
   Serial.println('\n');
   Serial.println(F("======================== INICIANDO AUTOMACAO ========================"));
@@ -123,40 +126,10 @@ void setup() {
   _ligaEsteira();                      // Ativa a esteira
   delay(2000);                         // Espera a esteira normalizar a posição das garrafinhas
   Serial.println(F("________________ AUTOMAÇÃO INICIALIZADA COM SUCESSO ________________"));
-
-  // Inicializa funções
-  //_realizarHandshake(); // Executa o Handshake antes de iniciar o loop principal
-
-
-
-  _abreCancela();
 }
 
 
 
-
-void loop() {
-  _ligaEsteira();
-  int sensorLazer = 0;
-  while (sensorLazer == 0) {                          // Equanto  a garrafa não chegar ao sensor do lazer
-    sensorLazer = digitalRead(pin_Receptor_Lazer_D);  // Lê o status do sensor do lazer
-  }
-  _paraEsteira();                                     // Para a esteira
-  while (sensorLazer == 1) {                          // Equanto  a garrafa não sair do sensor do lazer
-    sensorLazer = digitalRead(pin_Receptor_Lazer_D);  // Lê o status do sensor do lazer
-  }
-}
-
-
-
-
-
-
-
-
-
-
-/*
 void loop() {
   // A leitura da serial roda CONSTANTEMENTE, esteja o sistema pausado ou não
   _recebeComandos();
@@ -165,4 +138,3 @@ void loop() {
     _rotinaEsteiraPrincipal();
   }
 }
-*/

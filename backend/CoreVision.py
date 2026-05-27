@@ -42,8 +42,8 @@ with open(class_names_path, "r", encoding="utf-8") as f:
         class_names.append(clean_name)
 
 # Portas Seriais Dedicadas
-PORTA_SERIAL_ESTEIRA = "COM5"
-PORTA_SERIAL_ROBO = "COM9"
+PORTA_SERIAL_ESTEIRA = "COM8"
+PORTA_SERIAL_ROBO = "COM5"
 BAUD_RATE = 38400
 
 esteira = None
@@ -266,39 +266,28 @@ def enviar_comando_maquina(label_item):
     Direciona comandos de forma blindada. Se o hardware alvo não existir,
     o sistema apenas simula no console sem quebrar a execução geral.
     """
-    global esteira, robo
+    global esteira, robo, fila_comandos_robo
     label_minusculo = label_item.lower()
 
     # Cenário 1 & 2: Ações destinadas ao ROBÔ (Erros ou Vazias)
     if "erro" in label_minusculo or label_item == "Erro de Fabricacao":
-        if robo and robo.is_open:
-            robo.write(b"ROTINA_01\n")
-            print("[Serial] 'ROTINA_01' enviada ao Robô.")
-        else:
-            print(f"[Simulação Robô] Ignorado 'ROTINA_01' para: {label_item}")
+        fila_comandos_robo.append("ROTINA_01")
+        print(f"[Sistema] 'ROTINA_01' enfileirada. Aguardando sinal da Esteira para o item: {label_item}")
 
     elif "vazia" in label_minusculo:
-        if robo and robo.is_open:
-            robo.write(b"ROTINA_02\n")
-            print("[Serial] 'ROTINA_02' enviada ao Robô.")
-        else:
-            print(f"[Simulação Robô] Ignorado 'ROTINA_02' para: {label_item}")
-            
-    
-    elif "coca_cola" in label_minusculo:
-        if robo and robo.is_open:
-            robo.write(b"ROTINA_02\n")
-            print("[Serial] 'ROTINA_02' enviada ao Robô.")
-        else:
-            print(f"[Simulação Robô] Ignorado 'ROTINA_02' para: {label_item}")
+        fila_comandos_robo.append("ROTINA_02")
+        print(f"[Sistema] 'ROTINA_02' enfileirada. Aguardando sinal da Esteira para o item: {label_item}")
 
     # Cenário 3: Garrafas conformes/normais -> Enviadas à ESTEIRA via JSON
     else:
         if esteira and esteira.is_open:
             payload_dict = {"id": "servidor", "deteccao_de_item": label_item}
             payload_json = json.dumps(payload_dict) + "\n"
-            esteira.write(payload_json.encode("utf-8"))
-            print(f"[Serial] JSON despachado para Esteira: {payload_dict}")
+            try:
+                esteira.write(payload_json.encode("utf-8"))
+                print(f"[Serial] JSON despachado para Esteira: {payload_dict}")
+            except Exception as e:
+                print(f"[Erro Serial] Falha ao despachar JSON para a Esteira: {e}")
         else:
             print(f"[Simulação Esteira] JSON retido para: {label_item}")
 
@@ -486,13 +475,21 @@ async def manipulador_conexao(websocket):
                 requisicao = dados_resposta.get("requisicao")
 
                 try:
-                    contexto_prompt = f"""Você é um assistente de IA especialista integrado a um sistema industrial.
-                    Dados atuais: {json.dumps(dados_esteira)}
-                    Responda usando estritamente tags HTML básicas (<b>, <i>, <pre>). Não use Markdown."""
+                    contexto_prompt = f"""Você é um assistente de IA especialista, integrado a um sistema de automação industrial. O sistema utiliza Visão Computacional (OpenCV, Keras/TensorFlow) para identificar objetos em uma esteira, comunicação serial (Python/PySerial) com um microcontrolador Arduino que controla atuadores, e um backend (Python/WebSockets) que serve um frontend (HTML/JS) para monitoramento em tempo real. Seu objetivo é fornecer respostas e análises considerando a totalidade deste ecossistema.
 
+REGRAS E FORMATO DA RESPOSTA (OBRIGATÓRIO):
+1. Estilo de Console: Sua resposta será exibida em um console de log no frontend (dentne de uma tag <pre>). Formate sua saída como se fosse uma mensagem de sistema inteligente.
+2. Analise os dados em tempo real da produção para responder: {json.dumps(dados_esteira)}
+3. Sem Formatação Complexa: NÃO use Markdown (como `###`, `*`, `-` para listas). Use estritamente tags HTML simples (<b>, i, <pre>, <ul>, <li>, <hr>) para gerar a formatação quando necessário.
+4. O comprimento de cada linha da resposta deve ser curto para caber na tela do console, sem quebras de linhas duplas ou blocos densos de texto vago.
+5. Linguagem Técnica: Utilize termos apropriados de engenharia e software (ex: 'payload JSON', 'WebSocket', 'Keras', 'ROI OpenCV', 'Serial UART').
+
+Responda à pergunta do operador de forma clara e direta:
+"""
+                    pergunta = f"{contexto_prompt}\n\n{requisicao}"
                     response = client.models.generate_content(
                         model="gemini-2.5-flash",
-                        contents=f"{contexto_prompt}\n\n{requisicao}",
+                        contents=pergunta,
                     )
                     texto_resposta = response.text
                 except Exception as e:
@@ -530,8 +527,11 @@ async def manipulador_conexao(websocket):
                     if esteira and esteira.is_open:
                         payload_dict = {"id": "servidor", "controle": comando_para_esteira}
                         payload_json = json.dumps(payload_dict) + "\n"
-                        esteira.write(payload_json.encode("utf-8"))
-                        print(f"[Serial] Comando '{comando_para_esteira}' enviado para a Esteira.")
+                        try:
+                            esteira.write(payload_json.encode("utf-8"))
+                            print(f"[Serial] Comando '{comando_para_esteira}' enviado para a Esteira.")
+                        except Exception as e:
+                            print(f"[Erro Serial] Falha ao enviar comando via WebSocket para a Esteira: {e}")
                     else:
                         print(f"[Aviso Serial] Comando '{comando_recebido}' ignorado, a Esteira não está conectada.")
                 else:
