@@ -37,7 +37,7 @@ void _processaComando(const String& json) {
     if (doc.containsKey("conexao") && doc["conexao"] == "ouvindo") {
       conectado = true;
       StaticJsonDocument<128> docConfirma;
-      docConfirma["id"] = "arduino";
+      docConfirma["id"] = "esteira";
       docConfirma["conexao"] = "estabelecida";
       serializeJson(docConfirma, Serial);
       Serial.println();
@@ -105,7 +105,7 @@ void _realizarHandshake() {
   Serial.println(F("\n\nComunicação pronta, aguardando comandos...\n"));
   while (!conectado) {
     // Envia um status ao servidor
-    Serial.println(F("{\"id\":\"arduino\",\"conexao\":\"aguardando\"}"));  // Avisa o Python que está pronto
+    Serial.println(F("{\"id\":\"esteira\",\"conexao\":\"aguardando\"}"));  // Avisa o Python que está pronto
     _recebeComandos();
     delay(1000);  // Aguarda antes de tentar o PING novamente
   }

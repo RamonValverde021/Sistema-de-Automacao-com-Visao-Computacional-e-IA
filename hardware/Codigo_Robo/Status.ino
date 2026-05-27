@@ -2,7 +2,7 @@
 void _DisplaySerial(char index, int coordenada) {
   switch (index) {
     case '0':
-      Serial.println(F("FUNCAO: ENTRADA DE DADOS"));
+      if (imprimeStatus) Serial.println(F("FUNCAO: ENTRADA DE DADOS"));
       break;
 
     case '1':
@@ -21,12 +21,16 @@ void _DisplaySerial(char index, int coordenada) {
       break;
 
     case 'L':
-      Serial.print(F("LUZ: "));
-      digitalRead(luz) == 1 ? Serial.println(F("LIGADA")) : Serial.println(F("DESLIGADA"));
+      if (imprimeStatus) Serial.print(F("LUZ: "));
+      if (digitalRead(luz) == 1) {
+        if (imprimeStatus) Serial.println(F("LIGADA"));
+      } else {
+        if (imprimeStatus) Serial.println(F("DESLIGADA"));
+      }
       break;
 
     case 'Z':
-      Serial.print(F("POSICAO INICIAL"));
+      if (imprimeStatus) Serial.print(F("POSICAO INICIAL"));
       break;
 
     default:

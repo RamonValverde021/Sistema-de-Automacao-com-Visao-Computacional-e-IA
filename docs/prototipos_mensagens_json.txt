@@ -88,7 +88,7 @@
 
 
 
-//================= Mensagens do Servidor Python para o Arduino =================//
+//================= Mensagens do Servidor Python para a Esteira =================//
 //=== Garrfas
 {
     "id":"servidor",
@@ -155,16 +155,38 @@
 
 
 
-//================= Mensagens do Arduino para o Servidor Python =================//
+//================= Mensagens da Esteira para o Servidor Python =================//
 {
-    "id":"arduino",
+    "id":"esteira",
     "conexao":"aguardando"
 }
 
 {
-    "id":"arduino",
+    "id":"esteira",
     "conexao":"estabelecida"
 }
 
 
-{"id":"arduino","conexao":"aguardando"}
+
+
+
+
+//================= Mensagens do Servidor Python para o Robo =================//
+{
+    "id":"servidor",
+    "conexao":"ouvindo"
+}
+
+
+
+
+//================= Mensagens do Robo para o Servidor Python =================//
+{
+    "id":"robo",
+    "conexao":"aguardando"
+}
+
+{
+    "id":"robo",
+    "conexao":"estabelecida"
+}

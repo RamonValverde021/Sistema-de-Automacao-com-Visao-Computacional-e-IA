@@ -1,26 +1,10 @@
-// Bibliotecas
+//==================== Inclusão de Bibliotecas =================//
+#include <ArduinoJson.h>
 #include <Servo.h>
 #include <SoftwareSerial.h>
 
-// Variaveis biblioteca do servo
-Servo base;
-Servo ombro;
-Servo cotovelo;
-Servo rotacao;
-Servo pulso;
-void _Servos(char servo, int posicao);
-void _OmbroCotovelo(int posicao_ombro, int posicao_cotovelo);
-void _OmbroPulso(int posicao_ombro, int posicao_pulso);
-void _CotoveloPulso(int posicao_cotovelo, int posicao_pulso);
-void _BaseRotacao(int posicao_base, int posicao_rotacao);
-void _OmbroCotoveloPulso(int posicao_ombro, int posicao_cotovelo, int posicao_pulso);
-void _BaseOmbroCotovelo(int posicao_base, int posicao_ombro, int posicao_cotovelo);
-void _posicaoInicial();
-
-// Variaveis
-bool bluetooth = false;
-bool serial = false;
-
+//==================== PINOUT ====================//
+//===== Portas Digitais
 const int RxD = 2;
 const int TxD = 3;
 const int pinBase = 4;
@@ -32,27 +16,56 @@ const int pinOmbro = 9;
 const int pinCotovelo = 10;
 const int luz = 11;
 
+//==================== VARIÁVEIS GLOBAIS ====================//
+bool bluetooth = false;
+bool serial = false;
+bool imprimeStatus = false;
+
 // Entradas e Saidas Bluetooth
 SoftwareSerial Bluetooth(RxD, TxD);  //RX pino 3, TX pino 2
 
 //===== Variáveis de comunicação
-const unsigned int TAMANHO_MAX = 256;  // Aumentado para 256 bytes para suportar as chaves/valores no pool do ArduinoJson
+const unsigned int TAMANHO_MAX = 128;  // 128 bytes para suportar as chaves/valores no pool do ArduinoJson
+bool pause = false;                    // Começa rodando ou pausado, dependendo da sua lógica
+bool conectado = false;
 
-// Outras Funções
-void _DisplaySerial(char index, int coordenada);
-void _entradaDados();
+//===== Variáveis Servo Cancela
+Servo base;
+Servo ombro;
+Servo cotovelo;
+Servo rotacao;
+Servo pulso;
 
-// Rotinas
+//==================== PROTOTIPAÇÃO DE FUNÇÕES ====================//
+//===== Funções Servos
+void _Servos(char servo, int posicao);
+void _OmbroCotovelo(int posicao_ombro, int posicao_cotovelo);
+void _OmbroPulso(int posicao_ombro, int posicao_pulso);
+void _CotoveloPulso(int posicao_cotovelo, int posicao_pulso);
+void _BaseRotacao(int posicao_base, int posicao_rotacao);
+void _OmbroCotoveloPulso(int posicao_ombro, int posicao_cotovelo, int posicao_pulso);
+void _BaseOmbroCotovelo(int posicao_base, int posicao_ombro, int posicao_cotovelo);
+void _posicaoInicial();
+
+//===== Funções de comunicação
+void _recebeComandos();
+void _processaComando(const String& json);
+void _realizarHandshake();
+void (*resetFunc)(void) = 0;  // Função para criar o auto reset
+void _limpaTerminal();
+
+//===== Funções Rotinas
 void _posicaoInicial();
 void _Rotina_01();
 void _Rotina_02();
 
+//==================== CODIGO PRINCIPAL ====================//
 void setup() {
   // Inicializa as Seriais
   Serial.begin(38400);
   Bluetooth.begin(38400);
 
-  // Define os pinos de entrada
+  // Definindo portas
   pinMode(pinGarraA, OUTPUT);
   pinMode(pinGarraF, OUTPUT);
   pinMode(luz, OUTPUT);
@@ -64,11 +77,16 @@ void setup() {
   pinMode(pinCotovelo, INPUT);
   pinMode(pinRotacao, INPUT);
   pinMode(pinPulso, INPUT);
+
+  // Ativando Servos
   base.attach(pinBase);
   ombro.attach(pinOmbro);
   cotovelo.attach(pinCotovelo);
   rotacao.attach(pinRotacao);
   pulso.attach(pinPulso);
+  delay(100);
+
+  // Posicionando servos na posição inicial
   cotovelo.write(30);
   pulso.write(93);
   ombro.write(180);
@@ -82,10 +100,20 @@ void setup() {
   delay(1000);
   digitalWrite(luz, LOW);
 
+  //Descansa os servos para não sobrecarregar a Shield de potência
+  base.detach();
+  ombro.detach();
+  cotovelo.detach();
+  rotacao.detach();
+  pulso.detach();
+
+  // Aguarda a comunicação com o Servidor Python
+  _realizarHandshake();  // Executa o Handshake antes de iniciar o loop principal
+
   delay(500);
   _DisplaySerial('I', 0);
 }
 
 void loop() {
-  _entradaDados();
+  _recebeComandos();
 }
