@@ -27,66 +27,101 @@ void _entradaDados(char *articulacao, int *posicao) {
 
     Serial.println(comando);
 
-  String letras;
-  String numeros;
-  // Iterar através da string de entrada
-  for (char caractere : comando) {
-    if (isalpha(caractere)) {
-      // Se for uma letra, adicione à string de letras
-      letras += caractere;
-    } else if (isdigit(caractere)) {
-      // Se for um dígito, adicione à string de números
-      numeros += caractere;
+    if (comando == "A1") {
+      // Reativa os servos
+      base.attach(pinBase);
+      ombro.attach(pinOmbro);
+      cotovelo.attach(pinCotovelo);
+      rotacao.attach(pinRotacao);
+      pulso.attach(pinPulso);
+      delay(100);
+
+      _DisplaySerial('1', 0);
+      _Rotina_01();
+    } else if (comando == "A2") {
+      // Reativa os servos
+      base.attach(pinBase);
+      ombro.attach(pinOmbro);
+      cotovelo.attach(pinCotovelo);
+      rotacao.attach(pinRotacao);
+      pulso.attach(pinPulso);
+      delay(100);
+
+      _DisplaySerial('1', 0);
+      _Rotina_02();
     }
-    // Se não for uma letra nem um dígito, ignore
-  }
+      //Descansa os servos
+      base.detach();
+      ombro.detach();
+      cotovelo.detach();
+      rotacao.detach();
+      pulso.detach();
 
-  // Verifica se ouve alguma entrada de coordenada
-  if (numeros.length() != NULL) {
-    // Converta a string de números para inteiro
-    int numeroConvertido = numeros.toInt();
-    // Converte o caractere em maiúsculo
-    char caractereMaiusculo = toupper(comando[0]);
-
-    // Definindo limites de articulação dos motores
-    switch (caractereMaiusculo) {
-      case 'B':
-        numeroConvertido = constrain(numeroConvertido, 0, 180);
-        break;
-      case 'O':
-        numeroConvertido = constrain(numeroConvertido, 0, 180);
-        break;
-      case 'C':
-        numeroConvertido = constrain(numeroConvertido, 0, 180);
-        break;
-      case 'P':
-        numeroConvertido = constrain(numeroConvertido, 0, 180);
-        break;
-      case 'R':
-        numeroConvertido = constrain(numeroConvertido, 0, 180);
-        break;
-      case 'G':
-        numeroConvertido = constrain(numeroConvertido, 0, 1);  // Fecha ou Abre
-        break;
-      case 'L':
-        numeroConvertido = constrain(numeroConvertido, 0, 1);  // Desliga ou Liga
-        break;
-      default:
-        break;
+/*
+    String letras;
+    String numeros;
+    // Iterar através da string de entrada
+    for (char caractere : comando) {
+      if (isalpha(caractere)) {
+        // Se for uma letra, adicione à string de letras
+        letras += caractere;
+      } else if (isdigit(caractere)) {
+        // Se for um dígito, adicione à string de números
+        numeros += caractere;
+      }
+      // Se não for uma letra nem um dígito, ignore
     }
 
-    *posicao = numeroConvertido;
-    *articulacao = caractereMaiusculo;
-  } else {
-    *posicao = -1;
-    *articulacao = 'v';  // v de voide de vazio
-  }
+    // Verifica se ouve alguma entrada de coordenada
+    if (numeros.length() != NULL) {
+      // Converta a string de números para inteiro
+      int numeroConvertido = numeros.toInt();
+      // Converte o caractere em maiúsculo
+      char caractereMaiusculo = toupper(comando[0]);
 
-  // Quando o aplicativo solicita um status de posição do robo
-  if (comando.indexOf("Status") >= 0) {
-    _Status(1);
-    _Status(2);
+      // Definindo limites de articulação dos motores
+      switch (caractereMaiusculo) {
+        case 'A':
+          numeroConvertido = constrain(numeroConvertido, 1, 3);
+          break;
+        case 'B':
+          numeroConvertido = constrain(numeroConvertido, 0, 180);
+          break;
+        case 'O':
+          numeroConvertido = constrain(numeroConvertido, 0, 180);
+          break;
+        case 'C':
+          numeroConvertido = constrain(numeroConvertido, 0, 180);
+          break;
+        case 'P':
+          numeroConvertido = constrain(numeroConvertido, 0, 180);
+          break;
+        case 'R':
+          numeroConvertido = constrain(numeroConvertido, 0, 180);
+          break;
+        case 'G':
+          numeroConvertido = constrain(numeroConvertido, 0, 1);  // Fecha ou Abre
+          break;
+        case 'L':
+          numeroConvertido = constrain(numeroConvertido, 0, 1);  // Desliga ou Liga
+          break;
+        default:
+          break;
+      }
+
+      *posicao = numeroConvertido;
+      *articulacao = caractereMaiusculo;
+    } else {
+      *posicao = -1;
+      *articulacao = 'v';  // v de voide de vazio
+    }
+
+    // Quando o aplicativo solicita um status de posição do robo
+    if (comando.indexOf("Status") >= 0) {
+      _Status(1);
+      _Status(2);
+    }
+    */
   }
-}
-//comando = "";  // Limpa para a próxima mensagem
+ 
 }

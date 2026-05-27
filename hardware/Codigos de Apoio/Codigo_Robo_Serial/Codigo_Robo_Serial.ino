@@ -23,12 +23,12 @@ int posicaoAtual = -1;
 const int RxD = 2;
 const int TxD = 3;
 const int pinBase = 4;
-const int pinOmbro = 5;
-const int pinCotovelo = 6;
+const int pinGarraF = 6;
+const int pinGarraA = 5;
 const int pinRotacao = 7;
 const int pinPulso = 8;
-const int pinGarraF = 9;
-const int pinGarraA = 10;
+const int pinOmbro = 9;
+const int pinCotovelo = 10;
 const int luz = 11;
 String status_garra = "FECHADA";
 
@@ -46,8 +46,6 @@ void _Status(int envio);
 // Rotinas
 void _Rotina_01();
 void _Rotina_02();
-void _Rotina_03();
-void _Rotina_04();
 
 void setup() {
   // Inicializa as Seriais
@@ -58,8 +56,6 @@ void setup() {
   pinMode(pinGarraA, OUTPUT);
   pinMode(pinGarraF, OUTPUT);
   pinMode(luz, OUTPUT);
-  digitalWrite(pinGarraA, LOW);
-  digitalWrite(pinGarraF, LOW);
   digitalWrite(luz, LOW);
 
   // Inicializar os servos motores
@@ -73,12 +69,18 @@ void setup() {
   cotovelo.attach(pinCotovelo);
   rotacao.attach(pinRotacao);
   pulso.attach(pinPulso);
-  base.write(180);
   cotovelo.write(30);
-  ombro.write(170);
-  rotacao.write(5);
   pulso.write(93);
-  _Servos('G', 1);
+  ombro.write(180);
+  rotacao.write(5);
+  base.write(180);
+  _Servos('G', 0);
+  delay(200);
+  _Servos('G', 2);
+  delay(200);
+  digitalWrite(luz, HIGH);
+  delay(1000);
+  digitalWrite(luz, LOW);
 
   // Primeiros comandos
   _entradaDados('x', -1);  // Chamada de função para bloquear a ultima instrução enviada

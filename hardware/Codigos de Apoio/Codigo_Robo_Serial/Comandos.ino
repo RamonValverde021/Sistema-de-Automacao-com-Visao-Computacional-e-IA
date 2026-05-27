@@ -16,12 +16,6 @@ void _Comandos() {
         } else if (posicao == 2) {
           _DisplaySerial('2', 0);
           _Rotina_02();
-        } else if (posicao == 3) {
-          _DisplaySerial('3', 0);
-          _Rotina_03();
-        } else if (posicao == 4) {
-          _DisplaySerial('4', 0);
-          _Rotina_04();
         }
       }
       posicaoAtual = posicao;
