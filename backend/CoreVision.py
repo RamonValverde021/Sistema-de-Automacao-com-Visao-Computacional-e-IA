@@ -36,9 +36,10 @@ model = load_model(model_path, compile=False)
 
 # Abre e lê o arquivo "labels.txt" para mapear as classes da esteira
 class_names_path = os.path.join(base_path, "keras_model/labels.txt")
-class_names = []
-
-with open(class_names_path, "r", encoding="utf-8") as f:
+# Lista para armazenar os nomes das classes em ordem de índice (0, 1, 2, ...) conforme o modelo Keras espera.
+class_names = [] 
+# Lê cada linha do arquivo, limpa espaços e quebras de linha, e extrai apenas o nome da classe (ignorando o número do índice se presente).
+with open(class_names_path, "r", encoding="utf-8") as f: 
     for line in f.readlines():
         clean_name = line.strip().split(" ", 1)[1].strip() if " " in line else line.strip()
         class_names.append(clean_name)
@@ -88,6 +89,7 @@ clientes_conectados = set()
 # 3. CONEXÃO DA CÂMERA E CONFIGURAÇÕES DO OPENCV
 # =====================================================================
 camera = cv2.VideoCapture(1)  # 0 para WebCam Integrada, 1 para Externa
+# Reduzido para 320x240 para melhorar a performance, mantendo a proporção 4:3 e a qualidade suficiente para o modelo Keras
 cam_width = 320 
 cam_height = 240 
 camera.set(cv2.CAP_PROP_FRAME_WIDTH, cam_width)
@@ -97,13 +99,13 @@ camera.set(cv2.CAP_PROP_FRAME_HEIGHT, cam_height)
 bg_subtractor = cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=40, detectShadows=False)
 
 # Constantes de calibração do OpenCV
-CONFIDENCE_THRESHOLD = 0.85  # 85% de certeza mínima
+CONFIDENCE_THRESHOLD = 0.95  # 95% de certeza mínima
 MIN_PIXELS_MOTION = 2000     # Sensibilidade de movimento dentro da ROI
 
 # =====================================================================
 # 4. LOOP PRINCIPAL DE VISÃO COMPUTACIONAL (ASSÍNCRONO)
 # =====================================================================
-async def loop_visao_computacional():
+async def loop_visao_computacional(): 
     """
     Captura frames da câmera, processa a detecção de movimento e classificação por IA,
     atualiza o estado global e despacha os dados via WebSocket para o frontend.
@@ -117,7 +119,7 @@ async def loop_visao_computacional():
 
     while True:
         # Permite que outras tarefas assíncronas (como o servidor WS) rodem sem travar
-        await asyncio.sleep(0.01) 
+        await asyncio.sleep(0.01) # Pequena pausa para evitar bloqueio total do loop e permitir resposta a conexões WebSocket
         
         ret, image = camera.read()
         if not ret:
@@ -139,10 +141,10 @@ async def loop_visao_computacional():
         motion_pixels = cv2.countNonZero(fg_mask)
         object_in_roi = motion_pixels > MIN_PIXELS_MOTION
 
-        mudou_estado = False
+        mudou_estado = False # Flag para indicar se houve mudança de estado ou nova contagem, para otimizar envios via WebSocket
 
-        if object_in_roi:
-            if not item_counted:
+        if object_in_roi: # Se há um objeto presente na ROI, processa a classificação por IA
+            if not item_counted: # Evita múltiplas contagens para o mesmo item enquanto ele estiver na ROI
                 roi_color = (0, 255, 255)  # Amarelo: Processando
                 dados_esteira["dados"]["status"] = "Processando"
                 mudou_estado = True
@@ -182,7 +184,6 @@ async def loop_visao_computacional():
                     elif current_label == "Sprite": roi_color = (50, 205, 50) # LimeGreen  R50 G205 B50
                     elif current_label == "Fanta_Laranja": roi_color = (0, 165, 255) # Orange R255 G165 B0
                     elif current_label == "Fanta_Uva": roi_color = (130, 0, 75) # Indigo R75 G0 B130
-                    elif current_label == "Fundo": roi_color = (255, 255, 255) # White R255 G255 B255
                     else: roi_color = (0, 0, 255) # Red R255 G0 B0
         else:
             # Se a esteira ficou limpa e o estado anterior era diferente, limpa os campos
@@ -201,12 +202,13 @@ async def loop_visao_computacional():
             cv2.putText(image, f"{current_label}", (start_x + 5, start_y + 18),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
-        cv2.imshow("Scanner de Esteira", image)
+        # Define o título da janela para "Scanner de Esteira" para melhor identificação
+        cv2.imshow("Scanner de Esteira", image) 
         
         # Se houver mudança de estado ou nova contagem, envia imediatamente via WebSocket
-        if mudou_estado and clientes_conectados:
-            mensagem = json.dumps(dados_esteira)
-            await asyncio.gather(*[cliente.send(mensagem) for cliente in clientes_conectados])
+        if mudou_estado and clientes_conectados: # Evita enviar dados se não houver clientes conectados para receber
+            mensagem = json.dumps(dados_esteira) # Converte o estado atualizado da esteira para JSON
+            await asyncio.gather(*[cliente.send(mensagem) for cliente in clientes_conectados]) # Envia a mensagem para todos os clientes conectados de forma assíncrona e eficiente
 
         # Monitora a tecla ESC para fechar a aplicação com segurança
         if cv2.waitKey(1) == 27:
@@ -224,12 +226,11 @@ async def manipulador_conexao(websocket):
     clientes_conectados.add(websocket)
     print(f"[Rede] Painel conectado. Total de telas ativas: {len(clientes_conectados)}")
     
-    # Envia o estado atual da produção assim que a tela abre
-    await websocket.send(json.dumps(dados_esteira))
-    
-    try:
-        async for mensagem in websocket:
-            dados_resposta = json.loads(mensagem)
+    # Converter o estado atual da esteira para JSON para o formato de mensagem e enviar ao cliente WebSocket recém-conectado, garantindo que ele tenha os dados mais recentes assim que se conectar ao painel web.
+    await websocket.send(json.dumps(dados_esteira))  
+    try: 
+        async for mensagem in websocket: # Loop para receber mensagens do cliente WebSocket (painel web)
+            dados_resposta = json.loads(mensagem) # Converte a mensagem JSON recebida em um dicionário Python para processamento
             
             # Filtra requisições vindas do Console de IA do Dashboard
             if dados_resposta.get("id") == "dashboard" and dados_resposta.get("designacao") == "console_de_comunicacao":
@@ -270,9 +271,10 @@ Responda à pergunta do operador de forma clara e direta:
                 }
                 await websocket.send(json.dumps(resposta_para_cliente))
                 
-    except websockets.exceptions.ConnectionClosed:
-        pass
-    finally:
+    except websockets.exceptions.ConnectionClosed: # Captura a desconexão do cliente WebSocket para limpeza de recursos e atualização de status
+        pass # A desconexão é tratada no bloco
+    # Remove o cliente da lista de conectados e atualiza o status no console
+    finally: 
         clientes_conectados.remove(websocket)
         print(f"[Rede] Painel desconectado. Total de telas ativas: {len(clientes_conectados)}")
 
